@@ -10,8 +10,7 @@ VIDEOS_PATH = settings.VIDEOS_PATH
 
 
 class BaseVideoFile(BaseModel):
-    file_path = models.FilePathField(
-        match=rf"^({VIDEOS_PATH}.+)?$",
+    file_path = models.CharField(
         blank=True,
         default="",
     )

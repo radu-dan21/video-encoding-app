@@ -34,7 +34,7 @@ class FilterResults(BaseModel):
     )
 
 
-class ComparisonFilterResults(FilterResults):
+class ComparisonFilterResult(FilterResults):
     video_to_compare = models.ForeignKey(
         DecodedVideoFile,
         on_delete=models.CASCADE,
@@ -46,7 +46,7 @@ class ComparisonFilterResults(FilterResults):
     )
 
 
-class InformationFilterResults(FilterResults):
+class InformationFilterResult(FilterResults):
     video = models.ForeignKey(
         OriginalVideoFile,
         on_delete=models.CASCADE,

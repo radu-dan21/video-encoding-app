@@ -2,16 +2,65 @@ version: '3.8'
 
 services:
   web:
-    build: ./app
+    build:
+      context: .
+      dockerfile: ./app/Dockerfile
+      target: development
+    image: web
+    working_dir: /usr/src/app
+    stdin_open: true
+    tty: true
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - ./app/:/usr/src/app/
     ports:
-      - 8000:8000
+      - "8000:8000"
     env_file:
       - ./.env.dev
     depends_on:
       - db
+      - redis
+
+  redis:
+    image: "redis:latest"
+
+  celery:
+    tty: true
+    stdin_open: true
+    image: web
+    platform: linux/amd64
+    env_file:
+      - ./.env.dev
+    depends_on:
+      - web
+    working_dir: /usr/src/app
+    volumes:
+      - ./app/:/usr/src/app/
+    command: [
+      "celery",
+      "--app=video_coding.celery:app",
+      "worker",
+      "--pool=solo",
+      "--loglevel",
+      "INFO",
+      "-Q",
+      "web",
+    ]
+
+  beat:
+    image: web
+    platform: linux/amd64
+    env_file:
+      - ./.env.dev
+    volumes:
+      - ./app/:/usr/src/app/
+    depends_on:
+      - web
+    command: [
+      "celery",
+      "--app=video_coding.celery:app",
+      "beat",
+    ]
 
   db:
     image: postgres:15-bullseye
@@ -19,6 +68,16 @@ services:
       - postgres_data:/var/lib/postgresql/data/
     env_file:
       - ./.env.dev
+
+  flower:
+    image: mher/flower:1.2
+    container_name: flower
+    env_file:
+      - ./.env.dev
+    environment:
+      - FLOWER_PORT=8888
+    ports:
+      - '8888:8888'
 
 volumes:
   postgres_data:

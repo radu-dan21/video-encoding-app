@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 import os
 
+from datetime import timedelta
 from pathlib import Path
 
 
@@ -43,6 +44,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django_jsonform",
+    "video_coding.entities",
 ]
 
 MIDDLEWARE = [
@@ -129,3 +132,25 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+VIDEOS_PATH: str = os.environ.get("VIDEOS_PATH", "/usr/src/app/videos")
+
+REDIS_HOST = os.environ.get("REDIS_HOST", "redis")
+REDIS_PORT = os.environ.get("REDIS_PORT", 6379)
+REDIS_BROKER_DB = int(os.environ.get("REDIS_BROKER_DB", 2))
+REDIS_RESULT_DB = int(os.environ.get("REDIS_RESULT_DB", 3))
+DEFAULT_TASK_LIMIT = timedelta(minutes=5).seconds
+
+
+class Celery:
+    accept_content = ["json"]
+    enable_utc = True
+    result_serializer = "json"
+    broker_url = os.environ.get("CELERY_BROKER_URL")
+    result_backend = os.environ.get("CELERY_RESULT_BACKEND")
+    worker_prefetch_multiplier = 1
+    task_serializer = "json"
+    task_track_started = True
+    task_create_missing_queues = True
+    task_time_limit = (DEFAULT_TASK_LIMIT,)
+    task_soft_time_limit = None

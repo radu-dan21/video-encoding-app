@@ -56,6 +56,9 @@ repos:
           "--lines-between-types=1",
           "--lines-before-imports=0",
           "--lines-after-imports=2",
+          "--src-path=app",
+          "--src-path=app/video_coding",
+          "--src-path=app/tests",
         ]
         language: python
 
@@ -76,4 +79,7 @@ repos:
     hooks:
       - id: bandit
         exclude: ^tests/
+        args: [
+          "-lll",
+        ]
         language: python
