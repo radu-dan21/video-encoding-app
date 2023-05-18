@@ -204,4 +204,4 @@ atlassian-ide-plugin.xml
 .idea/httpRequests
 
 # Video files
-app/videos/*
+app/videos/
