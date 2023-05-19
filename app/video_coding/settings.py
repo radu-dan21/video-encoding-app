@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django_jsonform",
+    "django_bootstrap5",
     "video_coding.entities",
 ]
 

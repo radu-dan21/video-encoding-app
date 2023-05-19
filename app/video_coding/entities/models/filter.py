@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+from abc import abstractmethod
+
 from django.db import models
 from django_jsonform.models.fields import ArrayField, JSONField
 
 from video_coding.entities.models.base import BaseModel
 from video_coding.entities.models.video_file import DecodedVideoFile, OriginalVideoFile
+from video_coding.utils.ffmpeg import FFMPEG
 
 
 class Filter(BaseModel):
@@ -33,6 +36,16 @@ class FilterResults(BaseModel):
         blank=True,
     )
 
+    compute_time = models.FloatField(null=True)
+
+    def call_ffmpeg(self, args: list[str]):
+        self.compute_time = FFMPEG.call(args)
+        self.save(update_fields=['compute_time'])
+
+    @abstractmethod
+    def compute(self):
+        ...
+
 
 class ComparisonFilterResult(FilterResults):
     video_to_compare = models.ForeignKey(
@@ -43,7 +56,13 @@ class ComparisonFilterResult(FilterResults):
     reference_video = models.ForeignKey(
         OriginalVideoFile,
         on_delete=models.CASCADE,
+        related_name='comparison_filter_results',
     )
+
+    def compute(self):
+        ...
+        # TODO: need to return ffmpeg output in order to save it
+        # self.call_ffmpeg()
 
 
 class InformationFilterResult(FilterResults):
@@ -52,3 +71,6 @@ class InformationFilterResult(FilterResults):
         on_delete=models.CASCADE,
         related_name="info_filter_results",
     )
+
+    def compute(self):
+        ...
