@@ -38,7 +38,7 @@ class FilterResults(BaseModel):
 
     compute_time = models.FloatField(null=True)
 
-    def call_ffmpeg(self, args: list[str]) -> bytes | None:
+    def call_ffmpeg(self, args: list[str]) -> str | None:
         self.compute_time, output = FFMPEG.call(args, capture_output=True)
         self.save(update_fields=["compute_time"])
         return output

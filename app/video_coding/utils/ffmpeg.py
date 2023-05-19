@@ -7,7 +7,7 @@ class FFMPEG:
     @classmethod
     def call(
         cls, args: list[str], capture_output: bool = False
-    ) -> tuple[float, bytes | None]:
+    ) -> tuple[float, str | None]:
         start_time: float = perf_counter()
         completed_process: subprocess.CompletedProcess = subprocess.run(
             ["ffmpeg"]
@@ -19,7 +19,9 @@ class FFMPEG:
             capture_output=capture_output,
         )
         end_time: float = perf_counter()
-        return end_time - start_time, completed_process.stdout
+        stdout: bytes | None = completed_process.stdout
+        output: str | None = stdout.decode('utf-8') if stdout is not None else None
+        return end_time - start_time, output
 
 
 class Decode:
