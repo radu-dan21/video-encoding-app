@@ -5,12 +5,21 @@ from time import perf_counter
 
 class FFMPEG:
     @classmethod
-    def call(cls, args: list[str]) -> float:
+    def call(
+        cls, args: list[str], capture_output: bool = False
+    ) -> tuple[float, bytes | None]:
         start_time: float = perf_counter()
-        subprocess.run(
-            ["ffmpeg"] + args + ["-y", "-loglevel", "error"], capture_output=True,
+        completed_process: subprocess.CompletedProcess = subprocess.run(
+            ["ffmpeg"]
+            + args
+            + ["-y", "-loglevel", "error"]
+            + ["|&", "grep", "Parsed_", "2>&1", "tee"]
+            if capture_output
+            else [],
+            capture_output=capture_output,
         )
-        return perf_counter() - start_time
+        end_time: float = perf_counter()
+        return end_time - start_time, completed_process.stdout
 
 
 class Decode:
@@ -26,4 +35,4 @@ class Decode:
                 "yuvv442",
                 output_file_path,
             ],
-        )
+        )[0]

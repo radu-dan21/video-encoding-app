@@ -38,12 +38,13 @@ class FilterResults(BaseModel):
 
     compute_time = models.FloatField(null=True)
 
-    def call_ffmpeg(self, args: list[str]):
-        self.compute_time = FFMPEG.call(args)
-        self.save(update_fields=['compute_time'])
+    def call_ffmpeg(self, args: list[str]) -> bytes | None:
+        self.compute_time, output = FFMPEG.call(args, capture_output=True)
+        self.save(update_fields=["compute_time"])
+        return output
 
     @abstractmethod
-    def compute(self):
+    def compute(self) -> None:
         ...
 
 
@@ -56,10 +57,10 @@ class ComparisonFilterResult(FilterResults):
     reference_video = models.ForeignKey(
         OriginalVideoFile,
         on_delete=models.CASCADE,
-        related_name='comparison_filter_results',
+        related_name="comparison_filter_results",
     )
 
-    def compute(self):
+    def compute(self) -> None:
         ...
         # TODO: need to return ffmpeg output in order to save it
         # self.call_ffmpeg()
@@ -72,5 +73,5 @@ class InformationFilterResult(FilterResults):
         related_name="info_filter_results",
     )
 
-    def compute(self):
+    def compute(self) -> None:
         ...

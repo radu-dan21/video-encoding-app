@@ -1,4 +1,5 @@
 import logging
+from typing import Any
 
 from datetime import timedelta
 
@@ -47,7 +48,7 @@ class BaseTask(celery.Task):
     retry_backoff_max = timedelta(minutes=10).seconds
     retry_jitter = True
 
-    def run(self, *args, **kwargs):
+    def run(self, *args, **kwargs) -> Any:
         return super().run(*args, **kwargs)
 
 
@@ -66,7 +67,7 @@ app.config_from_object(
 
 
 @after_setup_logger.connect
-def setup_loggers(logger, *args, **kwargs):
+def setup_loggers(logger, *args, **kwargs) -> None:
     handler = logging.StreamHandler()
     handler.setFormatter(
         TaskFormatter(

@@ -12,5 +12,5 @@ class BaseModel(models.Model):
     name = models.CharField(max_length=255, unique=True)
     created_at = models.DateField(auto_now_add=True)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.name) + " - " + super().__str__()
