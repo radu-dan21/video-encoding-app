@@ -20,7 +20,7 @@ class FFMPEG:
         )
         end_time: float = perf_counter()
         stdout: bytes | None = completed_process.stdout
-        output: str | None = stdout.decode('utf-8') if stdout is not None else None
+        output: str | None = stdout.decode("utf-8") if stdout is not None else None
         return end_time - start_time, output
 
 
