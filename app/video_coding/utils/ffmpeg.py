@@ -4,23 +4,22 @@ from time import perf_counter
 
 
 class FFMPEG:
-    @classmethod
-    def call(
-        cls, args: list[str], capture_output: bool = False
-    ) -> tuple[float, str | None]:
-        start_time: float = perf_counter()
-        completed_process: subprocess.CompletedProcess = subprocess.run(
-            ["ffmpeg"]
-            + args
-            + ["-y", "-loglevel", "error"]
-            + ["|&", "grep", "Parsed_", "2>&1", "tee"]
-            if capture_output
-            else [],
-            capture_output=capture_output,
+    @staticmethod
+    def __call_bash_cmd(cmd: str) -> str:
+        popen = subprocess.Popen(
+            ["/bin/bash"],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
         )
+        out, _err = popen.communicate(cmd.encode())
+        popen.wait()
+        return out.decode("utf-8")
+
+    @classmethod
+    def call(cls, args: list[str]) -> tuple[float, str]:
+        start_time: float = perf_counter()
+        output: str = cls.__call_bash_cmd(" ".join(["ffmpeg"] + args))
         end_time: float = perf_counter()
-        stdout: bytes | None = completed_process.stdout
-        output: str | None = stdout.decode("utf-8") if stdout is not None else None
         return end_time - start_time, output
 
 
@@ -29,12 +28,13 @@ class Decode:
     def call(cls, input_file_path: str, output_file_path: str) -> float:
         return FFMPEG.call(
             args=[
+                "-y",
                 "-i",
                 input_file_path,
-                "c:v",
+                "-c:v",
                 "rawvideo",
-                "pix-fmt",
-                "yuvv442",
+                "-pix_fmt",
+                "yuyv422",
                 output_file_path,
             ],
         )[0]

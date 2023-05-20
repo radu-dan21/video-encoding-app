@@ -3,6 +3,7 @@ from django.contrib import admin
 from video_coding.entities.models import (
     ComparisonFilter,
     ComparisonFilterResult,
+    DecodedVideoFile,
     EncodedVideoFile,
     InformationFilter,
     InformationFilterResult,
@@ -18,6 +19,11 @@ class EncodedVideoFileAdmin(admin.ModelAdmin):
 
 @admin.register(ComparisonFilter)
 class ComparisonFilterAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(DecodedVideoFile)
+class DecodedVideoFileAdmin(admin.ModelAdmin):
     pass
 
 

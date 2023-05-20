@@ -1,4 +1,5 @@
 import logging
+import os.path
 
 from abc import abstractmethod
 
@@ -19,7 +20,7 @@ VIDEOS_PATH = settings.VIDEOS_PATH
 
 
 class BaseVideoFile(BaseModel):
-    file_path = models.CharField(
+    file_name = models.CharField(
         blank=True,
         default="",
     )
@@ -29,6 +30,20 @@ class BaseVideoFile(BaseModel):
         null=True,
         blank=True,
     )
+
+    @property
+    def file_path(self) -> str:
+        return os.path.join(self.parent_dir, self.file_name)
+
+    @property
+    @abstractmethod
+    def parent_dir(self):
+        ...
+
+    @property
+    def extension(self):
+        rightmost_dot_idx: int = self.file_name.rfind(".")
+        return self.file_name[rightmost_dot_idx + 1 :]
 
     def set_ffprobe_info(self) -> None:
         self.ffprobe_info = FFPROBE.call(self.file_path)
@@ -61,6 +76,10 @@ class OriginalVideoFile(BaseVideoFile):
         default="",
     )
 
+    @property
+    def parent_dir(self):
+        return os.path.join(VIDEOS_PATH, f"{self.id}/")
+
     def set_status(self, status: Status.choices, commit=True) -> None:
         self.status = status
         if commit:
@@ -80,7 +99,13 @@ class OriginalVideoFile(BaseVideoFile):
     def compute_metrics(self) -> None:
         logger.info(f"Computing metrics for {self}")
         self.set_status(self.Status.METRICS)
-        ...
+        filter_results_fields: list[str] = [
+            "info_filter_results",
+            "comparison_filter_results",
+        ]
+        for filter_result_field in filter_results_fields:
+            for f in getattr(self, filter_result_field).all():
+                f.compute()
 
     def run_workflow(self) -> None:
         try:
@@ -94,6 +119,8 @@ class OriginalVideoFile(BaseVideoFile):
 
 
 class EncodedVideoFile(BaseVideoFile):
+    REL_PATH_TO_OVF: str = "encoded/"
+
     class Meta:
         unique_together = ("original_video_file", "video_encoding")
 
@@ -111,21 +138,27 @@ class EncodedVideoFile(BaseVideoFile):
 
     encoding_time = models.FloatField(null=True)
 
+    @property
+    def parent_dir(self):
+        return os.path.join(self.original_video_file.parent_dir, self.REL_PATH_TO_OVF)
+
     def encode(self) -> None:
         self.encoding_time = FFMPEG.call(
-            ["-i", self.original_video_file.file_path]
+            ["-y", "-i", self.original_video_file.file_path]
             + self.video_encoding.ffmpeg_args
-            + [self.decoded_video_file_path]
+            + [self.file_path]
         )[0]
         self.save(update_fields=["encoding_time"])
 
     def run_workflow(self) -> None:
-        super().run_workflow()
         self.encode()
+        super().run_workflow()
         self.decoded_video_file.run_workflow()
 
 
 class DecodedVideoFile(BaseVideoFile):
+    REL_PATH_TO_OVF: str = "decoded/"
+
     encoded_video_file = models.OneToOneField(
         EncodedVideoFile,
         on_delete=models.CASCADE,
@@ -133,6 +166,14 @@ class DecodedVideoFile(BaseVideoFile):
     )
 
     decoding_time = models.FloatField(null=True)
+
+    @property
+    def original_video_file(self):
+        return self.encoded_video_file.original_video_file
+
+    @property
+    def parent_dir(self):
+        return os.path.join(self.original_video_file.parent_dir, self.REL_PATH_TO_OVF)
 
     def decode(self) -> None:
         self.decoding_time = Decode.call(
@@ -142,5 +183,5 @@ class DecodedVideoFile(BaseVideoFile):
         self.save(update_fields=["decoding_time"])
 
     def run_workflow(self) -> None:
-        super().run_workflow()
         self.decode()
+        super().run_workflow()

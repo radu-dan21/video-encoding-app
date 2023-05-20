@@ -10,10 +10,13 @@ ENV PIP_ROOT_USER_ACTION=ignore
 RUN apt-get update -y && apt-get dist-upgrade -y
 RUN apt install netcat libpq-dev python3-dev -y
 
-RUN wget https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-linux64-gpl.tar.xz
-RUN tar xvf ffmpeg-master-latest-linux64-gpl.tar.xz
-RUN cp ./ffmpeg-master-latest-linux64-gpl/bin/* ./bin
-RUN rm ffmpeg-master-latest-linux64-gpl.tar.xz
+RUN wget https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-linux64-gpl-shared.tar.xz
+RUN tar xvf ffmpeg-master-latest-linux64-gpl-shared.tar.xz
+RUN cp -r ./ffmpeg-master-latest-linux64-gpl-shared/bin/* ./bin
+RUN cp -r ./ffmpeg-master-latest-linux64-gpl-shared/lib/* ./lib
+RUN cp -r ./ffmpeg-master-latest-linux64-gpl-shared/include/* ./include
+RUN rm ffmpeg-master-latest-linux64-gpl-shared.tar.xz
+RUN rm -rf ./ffmpeg-master-latest-linux64-gpl-shared/*
 
 WORKDIR /usr/src/app
 
