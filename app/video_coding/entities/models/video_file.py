@@ -10,6 +10,7 @@ from django.utils.translation import gettext_lazy as _
 from django_jsonform.models.fields import JSONField
 
 from video_coding.entities.models.base import BaseModel
+from video_coding.handlers import vf_post_delete_hook, vf_post_save_hook
 from video_coding.utils import FFMPEG, FFPROBE, Decode
 
 
@@ -20,6 +21,12 @@ VIDEOS_PATH = settings.VIDEOS_PATH
 
 
 class BaseVideoFile(BaseModel):
+    @classmethod
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        models.signals.post_save.connect(vf_post_save_hook, sender=cls)
+        models.signals.post_delete.connect(vf_post_delete_hook, sender=cls)
+
     ffprobe_info = JSONField(
         blank=True,
         null=True,
@@ -56,12 +63,10 @@ class BaseVideoFile(BaseModel):
         self.save(update_fields=["ffprobe_info"])
 
     def create_folder_structure(self) -> None:
-        # TODO: fix
         if not os.path.exists(self.parent_dir):
             os.makedirs(self.parent_dir)
 
     def remove_folder_structure(self) -> None:
-        # TODO: fix
         shutil.rmtree(self.parent_dir, ignore_errors=True)
 
 

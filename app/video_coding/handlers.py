@@ -1,16 +1,18 @@
-from django.db.models.signals import post_delete, post_save
-from django.dispatch import receiver
-
-from video_coding.entities.models import BaseVideoFile
+from operator import itemgetter
 
 
-@receiver(post_save, sender=BaseVideoFile)
-def base_video_file_post_save(sender, instance, created, raw, using, update_fields):
+def vf_post_save_hook(**kwargs):
+    try:
+        created, instance = itemgetter("created", "instance")(kwargs)
+    except KeyError:
+        return
+
     if not created:
         return
     instance.create_folder_structure()
 
 
-@receiver(post_delete, sender=BaseVideoFile)
-def base_video_file_post_delete(sender, instance, using):
-    instance.remove_folder_structure()
+def vf_post_delete_hook(**kwargs):
+    instance = kwargs.get("instance")
+    if instance:
+        instance.remove_folder_structure()
