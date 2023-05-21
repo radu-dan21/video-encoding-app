@@ -1,6 +1,8 @@
 import json
 import subprocess
 
+from typing import Any
+
 
 class FFPROBE:
     @classmethod
@@ -42,7 +44,7 @@ class FFPROBE:
             "format": modified_format_data,
         }
 
-    SCHEMA = {
+    SCHEMA: dict[str, Any] = {
         "type": "object",
         "properties": {
             "streams": {

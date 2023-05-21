@@ -1,5 +1,6 @@
 import logging
-import os.path
+import os
+import shutil
 
 from abc import abstractmethod
 
@@ -9,8 +10,7 @@ from django.utils.translation import gettext_lazy as _
 from django_jsonform.models.fields import JSONField
 
 from video_coding.entities.models.base import BaseModel
-from video_coding.utils.ffmpeg import FFMPEG, Decode
-from video_coding.utils.ffprobe import FFPROBE
+from video_coding.utils import FFMPEG, FFPROBE, Decode
 
 
 logger = logging.getLogger(__name__)
@@ -20,40 +20,49 @@ VIDEOS_PATH = settings.VIDEOS_PATH
 
 
 class BaseVideoFile(BaseModel):
+    ffprobe_info = JSONField(
+        blank=True,
+        null=True,
+        schema=FFPROBE.SCHEMA,
+    )
+
     file_name = models.CharField(
         blank=True,
         default="",
     )
-
-    ffprobe_info = JSONField(
-        schema=FFPROBE.SCHEMA,
-        null=True,
-        blank=True,
-    )
-
-    @property
-    def file_path(self) -> str:
-        return os.path.join(self.parent_dir, self.file_name)
 
     @property
     @abstractmethod
     def parent_dir(self):
         ...
 
-    @property
-    def extension(self):
-        rightmost_dot_idx: int = self.file_name.rfind(".")
-        return self.file_name[rightmost_dot_idx + 1 :]
-
-    def set_ffprobe_info(self) -> None:
-        self.ffprobe_info = FFPROBE.call(self.file_path)
-        self.save(update_fields=["ffprobe_info"])
-
     @abstractmethod
     def run_workflow(self) -> None:
         logger.info(f"Starting workflow for {self}")
         logger.info(f"Setting ffprobe info for {self}")
         self.set_ffprobe_info()
+
+    @property
+    def extension(self) -> str:
+        rightmost_dot_idx: int = self.file_name.rfind(".")
+        return self.file_name[rightmost_dot_idx + 1 :]
+
+    @property
+    def file_path(self) -> str:
+        return os.path.join(self.parent_dir, self.file_name)
+
+    def set_ffprobe_info(self) -> None:
+        self.ffprobe_info = FFPROBE.call(self.file_path)
+        self.save(update_fields=["ffprobe_info"])
+
+    def create_folder_structure(self) -> None:
+        # TODO: fix
+        if not os.path.exists(self.parent_dir):
+            os.makedirs(self.parent_dir)
+
+    def remove_folder_structure(self) -> None:
+        # TODO: fix
+        shutil.rmtree(self.parent_dir, ignore_errors=True)
 
 
 class OriginalVideoFile(BaseVideoFile):
@@ -65,9 +74,9 @@ class OriginalVideoFile(BaseVideoFile):
         FAILED = "F", _("Failed")
 
     status = models.CharField(
-        max_length=1,
         choices=Status.choices,
         default=Status.READY,
+        max_length=1,
     )
 
     error_message = models.CharField(
@@ -77,7 +86,7 @@ class OriginalVideoFile(BaseVideoFile):
     )
 
     @property
-    def parent_dir(self):
+    def parent_dir(self) -> str:
         return os.path.join(VIDEOS_PATH, f"{self.id}/")
 
     def set_status(self, status: Status.choices, commit=True) -> None:
@@ -89,6 +98,16 @@ class OriginalVideoFile(BaseVideoFile):
         self.set_status(self.Status.FAILED)
         self.error_message = error_message
         self.save(update_fields=["status", "error_message"])
+
+    def run_workflow(self) -> None:
+        try:
+            super().run_workflow()
+            self.encode_video_files()
+            self.compute_metrics()
+            self.set_status(self.Status.DONE)
+        except Exception as e:
+            self.set_failed(str(e))
+            raise e
 
     def encode_video_files(self) -> None:
         logger.info(f"Encoding video files for {self}")
@@ -106,16 +125,6 @@ class OriginalVideoFile(BaseVideoFile):
         for filter_result_field in filter_results_fields:
             for f in getattr(self, filter_result_field).all():
                 f.compute()
-
-    def run_workflow(self) -> None:
-        try:
-            super().run_workflow()
-            self.encode_video_files()
-            self.compute_metrics()
-            self.set_status(self.Status.DONE)
-        except Exception as e:
-            self.set_failed(str(e))
-            raise e
 
 
 class EncodedVideoFile(BaseVideoFile):
@@ -139,8 +148,13 @@ class EncodedVideoFile(BaseVideoFile):
     encoding_time = models.FloatField(null=True)
 
     @property
-    def parent_dir(self):
+    def parent_dir(self) -> str:
         return os.path.join(self.original_video_file.parent_dir, self.REL_PATH_TO_OVF)
+
+    def run_workflow(self) -> None:
+        self.encode()
+        super().run_workflow()
+        self.decoded_video_file.run_workflow()
 
     def encode(self) -> None:
         self.encoding_time = FFMPEG.call(
@@ -149,11 +163,6 @@ class EncodedVideoFile(BaseVideoFile):
             + [self.file_path]
         )[0]
         self.save(update_fields=["encoding_time"])
-
-    def run_workflow(self) -> None:
-        self.encode()
-        super().run_workflow()
-        self.decoded_video_file.run_workflow()
 
 
 class DecodedVideoFile(BaseVideoFile):
@@ -168,12 +177,16 @@ class DecodedVideoFile(BaseVideoFile):
     decoding_time = models.FloatField(null=True)
 
     @property
-    def original_video_file(self):
-        return self.encoded_video_file.original_video_file
-
-    @property
     def parent_dir(self):
         return os.path.join(self.original_video_file.parent_dir, self.REL_PATH_TO_OVF)
+
+    @property
+    def original_video_file(self) -> OriginalVideoFile:
+        return self.encoded_video_file.original_video_file
+
+    def run_workflow(self) -> None:
+        self.decode()
+        super().run_workflow()
 
     def decode(self) -> None:
         self.decoding_time = Decode.call(
@@ -181,7 +194,3 @@ class DecodedVideoFile(BaseVideoFile):
             output_file_path=self.file_path,
         )
         self.save(update_fields=["decoding_time"])
-
-    def run_workflow(self) -> None:
-        self.decode()
-        super().run_workflow()

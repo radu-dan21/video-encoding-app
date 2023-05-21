@@ -137,10 +137,10 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 VIDEOS_PATH: str = os.environ.get("VIDEOS_PATH", "/usr/src/app/videos")
 
 REDIS_HOST = os.environ.get("REDIS_HOST", "redis")
-REDIS_PORT = os.environ.get("REDIS_PORT", 6379)
+REDIS_PORT = int(os.environ.get("REDIS_PORT", 6379))
 REDIS_BROKER_DB = int(os.environ.get("REDIS_BROKER_DB", 2))
 REDIS_RESULT_DB = int(os.environ.get("REDIS_RESULT_DB", 3))
-DEFAULT_TASK_LIMIT = timedelta(minutes=5).seconds
+DEFAULT_TASK_LIMIT: int = timedelta(minutes=5).seconds
 
 
 class Celery:

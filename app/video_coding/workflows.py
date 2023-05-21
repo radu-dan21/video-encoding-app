@@ -10,8 +10,7 @@ from video_coding.entities.models import (
 )
 
 
-# USE THIS -> mw = MainWorkflow(1, [1, 2], [1], [2])
-class MainWorkflow:
+class PrepareMainWorkflow:
     def __init__(
         self,
         ovf_id: int,
@@ -25,6 +24,14 @@ class MainWorkflow:
         self.comparison_filters = ComparisonFilter.objects.filter(
             id__in=comparison_filter_ids,
         )
+
+    def run(self) -> None:
+        encoded_video_files: list[EncodedVideoFile] = self.create_encoded_video_files()
+        decoded_video_files: list[DecodedVideoFile] = self.create_decoded_video_files(
+            encoded_video_files,
+        )
+        self.create_info_filter_results()
+        self.create_comparison_filter_results(decoded_video_files)
 
     def create_encoded_video_files(self) -> list[EncodedVideoFile]:
         encoded_video_files: list[EncodedVideoFile] = []
@@ -66,7 +73,8 @@ class MainWorkflow:
             )
 
     def create_comparison_filter_results(
-        self, decoded_video_files: list[DecodedVideoFile]
+        self,
+        decoded_video_files: list[DecodedVideoFile],
     ) -> None:
         for cf in self.comparison_filters:
             for dvf in decoded_video_files:
@@ -77,17 +85,8 @@ class MainWorkflow:
                     reference_video=self.ovf,
                 )
 
-    def run(self) -> None:
-        encoded_video_files: list[EncodedVideoFile] = self.create_encoded_video_files()
-        decoded_video_files: list[DecodedVideoFile] = self.create_decoded_video_files(
-            encoded_video_files,
-        )
-        self.create_info_filter_results()
-        self.create_comparison_filter_results(decoded_video_files)
-        # TODO: create folder structure!
 
-
-def revert_back(ovf_id: int, **kwargs):
+def revert_back(ovf_id: int, **kwargs) -> None:
     ovf = OriginalVideoFile.objects.get(id=ovf_id)
     ovf.status = OriginalVideoFile.Status.READY
     ovf.error_message = ""
@@ -98,19 +97,15 @@ def revert_back(ovf_id: int, **kwargs):
 
     ovf.save()
 
-    for evf in ovf.encoded_video_files.all():
-        evf.decoded_video_file.delete()
-        evf.delete()
+    ovf.encoded_video_files.all().delete()
     ovf.info_filter_results.all().delete()
     ovf.comparison_filter_results.all().delete()
 
-    # maybe TODO: delete evf/dvf from storage
-
 
 # TODO: remove
-def test_wf():
+def test_wf() -> None:
     revert_back(1)
-    mw = MainWorkflow(1, [1, 2], [1], [2])
+    mw = PrepareMainWorkflow(1, [1, 2], [1], [2])
     mw.run()
     ovf = OriginalVideoFile.objects.get(id=1)
     ovf.run_workflow()

@@ -4,6 +4,13 @@ from time import perf_counter
 
 
 class FFMPEG:
+    @classmethod
+    def call(cls, args: list[str]) -> tuple[float, str]:
+        start_time: float = perf_counter()
+        output: str = cls.__call_bash_cmd(" ".join(["ffmpeg"] + args))
+        end_time: float = perf_counter()
+        return end_time - start_time, output
+
     @staticmethod
     def __call_bash_cmd(cmd: str) -> str:
         popen = subprocess.Popen(
@@ -14,13 +21,6 @@ class FFMPEG:
         out, _err = popen.communicate(cmd.encode())
         popen.wait()
         return out.decode("utf-8")
-
-    @classmethod
-    def call(cls, args: list[str]) -> tuple[float, str]:
-        start_time: float = perf_counter()
-        output: str = cls.__call_bash_cmd(" ".join(["ffmpeg"] + args))
-        end_time: float = perf_counter()
-        return end_time - start_time, output
 
 
 class Decode:

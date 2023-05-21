@@ -12,13 +12,13 @@ from video_coding.entities.models import (
 )
 
 
-@admin.register(EncodedVideoFile)
-class EncodedVideoFileAdmin(admin.ModelAdmin):
+@admin.register(ComparisonFilter)
+class ComparisonFilterAdmin(admin.ModelAdmin):
     pass
 
 
-@admin.register(ComparisonFilter)
-class ComparisonFilterAdmin(admin.ModelAdmin):
+@admin.register(ComparisonFilterResult)
+class ComparisonFilterResultsAdmin(admin.ModelAdmin):
     pass
 
 
@@ -27,13 +27,13 @@ class DecodedVideoFileAdmin(admin.ModelAdmin):
     pass
 
 
-@admin.register(InformationFilter)
-class InformationFilterAdmin(admin.ModelAdmin):
+@admin.register(EncodedVideoFile)
+class EncodedVideoFileAdmin(admin.ModelAdmin):
     pass
 
 
-@admin.register(ComparisonFilterResult)
-class ComparisonFilterResultsAdmin(admin.ModelAdmin):
+@admin.register(InformationFilter)
+class InformationFilterAdmin(admin.ModelAdmin):
     pass
 
 
