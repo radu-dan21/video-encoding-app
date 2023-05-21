@@ -1,4 +1,9 @@
-# TODO:
-#  requirements_dev.txt
-#  docker config for tests container and tests db
-#  some basic pytest tests for coverage
+import pytest
+
+from video_coding.entities.models import VideoEncoding
+
+
+@pytest.mark.django_db
+def test_create_video_encoding():
+    VideoEncoding.objects.create(name="foo", ffmpeg_args=["bar"])
+    assert VideoEncoding.objects.count() == 1

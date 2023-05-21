@@ -79,5 +79,24 @@ services:
     ports:
       - '8888:8888'
 
+  test:
+    build:
+      context: .
+      dockerfile: ./app/Dockerfile
+      target: test
+    depends_on:
+      - test_db
+    env_file:
+      - ./.env.test
+    working_dir: /usr/src/app
+    volumes:
+      - ./app/:/usr/src/app/
+
+  test_db:
+    image: postgres:15-bullseye
+    env_file:
+      - ./.env.test
+
+
 volumes:
   postgres_data:

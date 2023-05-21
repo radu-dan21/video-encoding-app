@@ -29,3 +29,9 @@ COPY . .
 FROM base AS development
 
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+
+FROM base AS test
+
+COPY ./app/requirements_test.txt .
+RUN pip install -r requirements_test.txt
+RUN mkdir /tmp/videos
