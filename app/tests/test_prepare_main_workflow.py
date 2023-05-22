@@ -1,0 +1,3 @@
+class TestPrepareMainWorkflow:
+    def _run_workflow(self, ovf):
+        ...
