@@ -105,7 +105,7 @@ def revert_back(ovf_id: int, **kwargs) -> None:
 # TODO: remove
 def test_wf() -> None:
     revert_back(1)
-    mw = PrepareMainWorkflow(1, [1, 2], [1], [2])
+    mw = PrepareMainWorkflow(1, [1, 2], [1], [1])
     mw.run()
     ovf = OriginalVideoFile.objects.get(id=1)
     ovf.run_workflow()
