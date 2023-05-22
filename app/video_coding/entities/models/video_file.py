@@ -21,6 +21,9 @@ VIDEOS_PATH = settings.VIDEOS_PATH
 
 
 class BaseVideoFile(BaseModel):
+    class Meta:
+        abstract = True
+
     @classmethod
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)

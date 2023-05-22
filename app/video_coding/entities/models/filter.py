@@ -16,6 +16,9 @@ logger = logging.getLogger(__name__)
 
 
 class Filter(BaseModel):
+    class Meta:
+        abstract = True
+
     ffmpeg_args = ArrayField(
         models.CharField(max_length=BaseModel.MAX_CHAR_FIELD_LEN),
     )
@@ -30,14 +33,11 @@ class ComparisonFilter(Filter):
 
 
 class FilterResults(BaseModel):
+    class Meta:
+        abstract = True
+
     # used for capturing (only) filter/metric output
     FFMPEG_CMD_SUFFIX: str = "-f null - |& tac 2>&1 | sed -n '0,/Parsed/p' | tac"
-
-    video_filter = models.ForeignKey(
-        Filter,
-        on_delete=models.CASCADE,
-        related_name="results",
-    )
 
     output = models.CharField(
         blank=True,
@@ -61,6 +61,12 @@ class FilterResults(BaseModel):
 
 
 class InformationFilterResult(FilterResults):
+    video_filter = models.ForeignKey(
+        InformationFilter,
+        on_delete=models.CASCADE,
+        related_name="results",
+    )
+
     video = models.ForeignKey(
         OriginalVideoFile,
         on_delete=models.CASCADE,
@@ -73,6 +79,12 @@ class InformationFilterResult(FilterResults):
 
 
 class ComparisonFilterResult(FilterResults):
+    video_filter = models.ForeignKey(
+        ComparisonFilter,
+        on_delete=models.CASCADE,
+        related_name="results",
+    )
+
     reference_video = models.ForeignKey(
         OriginalVideoFile,
         on_delete=models.CASCADE,
