@@ -1,5 +1,7 @@
 # project
 
+App used for comparing the performance of various video codecs
+
 Run command:
 
     docker compose up
