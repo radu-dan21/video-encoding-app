@@ -23,7 +23,7 @@ class TestMainWorkflow:
         evfs: list[EncodedVideoFile] = list(ovf.encoded_video_files.all())
         return [ovf] + evfs + [evf.decoded_video_file for evf in evfs]
 
-    def test_main_workflow(
+    def test_main_workflow_successful(
         self,
         test_ovf: OriginalVideoFile,
         av1: VideoEncoding,
@@ -65,3 +65,7 @@ class TestMainWorkflow:
                 DecodedVideoFile,
             )
         )
+
+    # TODO: implement
+    def test_main_workflow_fails(self):
+        ...
