@@ -9,4 +9,4 @@ Run command:
 
 Test command:
 
-    docker compose run --rm test pytest --nomigrations --create-db --verbose tests/
+    docker compose run --rm test pytest tests/
