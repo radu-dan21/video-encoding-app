@@ -1,3 +1,6 @@
+import os
+import shutil
+
 from pytest import fixture
 
 from tests.factories import (
@@ -7,28 +10,113 @@ from tests.factories import (
     OriginalVideoFileFactory,
     VideoEncodingFactory,
 )
+from video_coding.entities.models import (
+    ComparisonFilter,
+    DecodedVideoFile,
+    InformationFilter,
+    OriginalVideoFile,
+    VideoEncoding,
+)
+from video_coding.workflows import PrepareMainWorkflow
 
 
 @fixture
-def ovf():
+def ovf() -> OriginalVideoFile:
     return OriginalVideoFileFactory.create()
 
 
 @fixture
-def dvf():
+def dvf() -> DecodedVideoFile:
     return DecodedVideoFileFactory.create()
 
 
 @fixture
-def encodings():
+def encodings() -> list[VideoEncoding]:
     return VideoEncodingFactory.create_batch(2)
 
 
 @fixture
-def comp_filter():
+def comp_filter() -> ComparisonFilter:
     return ComparisonFilterFactory.create()
 
 
 @fixture
-def info_filter():
+def info_filter() -> InformationFilter:
     return InformationFilterFactory.create()
+
+
+@fixture
+def prepare_main_workflow() -> callable:
+    return _prepare_main_workflow
+
+
+def _prepare_main_workflow(
+    ovf: OriginalVideoFile,
+    encodings: list[VideoEncoding],
+    info_filters: list[InformationFilter],
+    comp_filters: list[ComparisonFilter],
+) -> None:
+    PrepareMainWorkflow(
+        ovf.id,
+        [e.id for e in encodings],
+        [i.id for i in info_filters],
+        [c.id for c in comp_filters],
+    ).run()
+
+
+@fixture
+def av1() -> VideoEncoding:
+    return VideoEncodingFactory.create(
+        name="AV1",
+        ffmpeg_args=[
+            "-c:v",
+            "libsvtav1",
+            "-crf",
+            "30",
+        ],
+        video_extension="mkv",
+    )
+
+
+@fixture
+def hevc() -> VideoEncoding:
+    return VideoEncodingFactory.create(
+        name="HEVC",
+        ffmpeg_args=[
+            "-c:v",
+            "libx265",
+            "-crf",
+            "30",
+        ],
+        video_extension="mkv",
+    )
+
+
+@fixture
+def siti() -> InformationFilter:
+    return InformationFilterFactory.create(
+        name="SITI",
+        ffmpeg_args=[
+            "-vf",
+            "siti=print_summary=1",
+        ],
+    )
+
+
+@fixture
+def psnr() -> ComparisonFilter:
+    return ComparisonFilterFactory.create(
+        name="PSNR",
+        ffmpeg_args=[
+            "-filter_complex",
+            "psnr",
+        ],
+    )
+
+
+@fixture
+def test_ovf() -> OriginalVideoFile:
+    ovf = OriginalVideoFileFactory.create(file_name="test.avi")
+    shutil.copyfile(os.environ.get("TEST_OVF_PATH"), ovf.file_path)
+    yield ovf
+    shutil.rmtree(ovf.parent_dir)

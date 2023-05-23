@@ -12,27 +12,20 @@ from video_coding.entities.models import (
     OriginalVideoFile,
     VideoEncoding,
 )
-from video_coding.workflows import PrepareMainWorkflow, revert_back
+from video_coding.workflows import revert_back
 
 
 @pytest.mark.django_db
 class TestPrepareMainWorkflow:
-    @staticmethod
-    def _run_workflow(
+    def test_prepare_main_workflow(
+        self,
         ovf: OriginalVideoFile,
         encodings: list[VideoEncoding],
-        info_filters: list[InformationFilter],
-        comp_filters: list[ComparisonFilter],
-    ) -> None:
-        PrepareMainWorkflow(
-            ovf.id,
-            [e.id for e in encodings],
-            [i.id for i in info_filters],
-            [c.id for c in comp_filters],
-        ).run()
-
-    def test_prepare_main_worflow(self, ovf, encodings, info_filter, comp_filter):
-        self._run_workflow(ovf, encodings, [info_filter], [comp_filter])
+        info_filter: InformationFilter,
+        comp_filter: ComparisonFilter,
+        prepare_main_workflow: callable,
+    ):
+        prepare_main_workflow(ovf, encodings, [info_filter], [comp_filter])
         ovf.refresh_from_db()
 
         evfs: list[EncodedVideoFile] = list(ovf.encoded_video_files.all())
@@ -49,8 +42,15 @@ class TestPrepareMainWorkflow:
             for parent_dir in (vf.parent_dir for vf in [ovf] + evfs + dvfs)
         )
 
-    def test_revert_back(self, ovf, encodings, info_filter, comp_filter):
-        self._run_workflow(ovf, encodings, [info_filter], [comp_filter])
+    def test_revert_back(
+        self,
+        ovf: OriginalVideoFile,
+        encodings: list[VideoEncoding],
+        info_filter: InformationFilter,
+        comp_filter: ComparisonFilter,
+        prepare_main_workflow: callable,
+    ):
+        prepare_main_workflow(ovf, encodings, [info_filter], [comp_filter])
         ovf.status = OriginalVideoFile.Status.FAILED
         ovf.save(update_fields=["status"])
 

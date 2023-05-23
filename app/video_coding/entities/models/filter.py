@@ -74,7 +74,10 @@ class InformationFilterResult(FilterResults):
     )
 
     def compute(self) -> None:
-        args: list[str] = ["-i", self.video.file_path] + self.video_filter.ffmpeg_args
+        args: list[str] = [
+            "-i",
+            f'"{self.video.file_path}"',
+        ] + self.video_filter.ffmpeg_args
         self.call_ffmpeg(args)
 
 
@@ -99,8 +102,8 @@ class ComparisonFilterResult(FilterResults):
     def compute(self) -> None:
         args: list[str] = [
             "-i",
-            self.video_to_compare.file_path,
+            f'"{self.video_to_compare.file_path}"',
             "-i",
-            self.reference_video.file_path,
+            f'"{self.reference_video.file_path}"',
         ] + self.video_filter.ffmpeg_args
         self.call_ffmpeg(args)

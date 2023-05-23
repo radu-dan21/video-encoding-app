@@ -30,7 +30,7 @@ class Decode:
             args=[
                 "-y",
                 "-i",
-                input_file_path,
+                f'"{input_file_path}"',
                 "-c:v",
                 "rawvideo",
                 "-pix_fmt",

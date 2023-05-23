@@ -100,12 +100,3 @@ def revert_back(ovf_id: int, **kwargs) -> None:
     ovf.encoded_video_files.all().delete()
     ovf.info_filter_results.all().delete()
     ovf.comparison_filter_results.all().delete()
-
-
-# TODO: remove
-def test_wf() -> None:
-    revert_back(1)
-    mw = PrepareMainWorkflow(1, [1, 2], [1], [1])
-    mw.run()
-    ovf = OriginalVideoFile.objects.get(id=1)
-    ovf.run_workflow()

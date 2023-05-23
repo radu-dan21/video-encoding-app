@@ -166,7 +166,7 @@ class EncodedVideoFile(BaseVideoFile):
 
     def encode(self) -> None:
         self.encoding_time = FFMPEG.call(
-            ["-y", "-i", self.original_video_file.file_path]
+            ["-y", "-i", f'"{self.original_video_file.file_path}"']
             + self.video_encoding.ffmpeg_args
             + [self.file_path]
         )[0]
