@@ -7,6 +7,11 @@ Run command:
     docker compose up
 
 
+Access the application by navigating at:
+
+    http://localhost:8000
+
+
 Test command:
 
     docker compose run --rm test pytest tests/
