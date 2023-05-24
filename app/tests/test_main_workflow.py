@@ -66,6 +66,22 @@ class TestMainWorkflow:
             )
         )
 
-    # TODO: implement
-    def test_main_workflow_fails(self):
-        ...
+    def test_main_workflow_fails(
+        self,
+        test_ovf: OriginalVideoFile,
+        av1: VideoEncoding,
+        hevc: VideoEncoding,
+        siti: InformationFilter,
+        psnr: ComparisonFilter,
+        prepare_main_workflow: callable,
+    ):
+        prepare_main_workflow(test_ovf, [av1, hevc], [siti], [psnr])
+        test_ovf.file_name = 'video_that_does_not_exist.mp4'
+        test_ovf.save(update_fields=['file_name'])
+
+        with pytest.raises(Exception):
+            test_ovf.run_workflow()
+
+        test_ovf.refresh_from_db()
+        assert test_ovf.status == OriginalVideoFile.Status.FAILED
+        assert bool(test_ovf.error_message)
