@@ -12,6 +12,7 @@
     <tr>
       <th scope="col">Id</th>
       <th scope="col">Name</th>
+      <th scope="col">Filename</th>
       <th scope="col">Status</th>
       <th scope="col">Created at</th>
     </tr>
@@ -21,6 +22,7 @@
     <tr onclick="window.location='ovf/{{ ovf.id }}';" style="cursor: pointer;">
         <th scope="row">{{ ovf.id }}</th>
         <td>{{ ovf.name }}</td>
+        <td>{{ ovf.file_name }}</td>
         <td>{{ ovf.get_status_display }}</td>
         <td>{{ ovf.created_at }}</td>
     </tr>
