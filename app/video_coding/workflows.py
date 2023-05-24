@@ -86,14 +86,11 @@ class PrepareMainWorkflow:
                 )
 
 
-def revert_back(ovf_id: int, **kwargs) -> None:
+def revert_back(ovf_id: int) -> None:
     ovf = OriginalVideoFile.objects.get(id=ovf_id)
     ovf.status = OriginalVideoFile.Status.READY
     ovf.error_message = ""
     ovf.ffprobe_info = {}
-
-    for attr, val in kwargs.items():
-        setattr(ovf, attr, val)
 
     ovf.save()
 
