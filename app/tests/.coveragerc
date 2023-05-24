@@ -6,3 +6,6 @@ omit =
     video_coding/celery.py
     video_coding/tasks.py
     video_coding/wsgi.py
+
+[report]
+show_missing = True
