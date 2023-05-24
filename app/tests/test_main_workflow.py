@@ -76,8 +76,8 @@ class TestMainWorkflow:
         prepare_main_workflow: callable,
     ):
         prepare_main_workflow(test_ovf, [av1, hevc], [siti], [psnr])
-        test_ovf.file_name = 'video_that_does_not_exist.mp4'
-        test_ovf.save(update_fields=['file_name'])
+        test_ovf.file_name = "video_that_does_not_exist.mp4"
+        test_ovf.save(update_fields=["file_name"])
 
         with pytest.raises(Exception):
             test_ovf.run_workflow()
