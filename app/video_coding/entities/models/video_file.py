@@ -5,6 +5,7 @@ import shutil
 from abc import abstractmethod
 
 from django.conf import settings
+from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django_jsonform.models.fields import JSONField
@@ -39,6 +40,7 @@ class BaseVideoFile(BaseModel):
     file_name = models.CharField(
         blank=True,
         default="",
+        validators=[RegexValidator(regex=r"^(.+)\.(.){1,5}")],
     )
 
     @property
