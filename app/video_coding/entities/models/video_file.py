@@ -3,14 +3,17 @@ import os
 import shutil
 
 from abc import abstractmethod
+from fractions import Fraction
 
 from django.conf import settings
 from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django_jsonform.models.fields import JSONField
+from hurry.filesize import si, size
 
 from video_coding.entities.models.base import BaseModel
+from video_coding.entities.utils.decorators import ignore_errors
 from video_coding.handlers import vf_post_delete_hook, vf_post_save_hook
 from video_coding.utils import FFMPEG, FFPROBE, Decode
 
@@ -62,6 +65,40 @@ class BaseVideoFile(BaseModel):
     @property
     def file_path(self) -> str:
         return os.path.join(self.parent_dir, self.file_name)
+
+    @property
+    @ignore_errors([KeyError, TypeError])
+    def bitrate(self) -> float | None:
+        bps: int = int(self.ffprobe_info["format"]["bit_rate"])
+        return round(bps / 10**6, 2)  # Mbps rounded to 2 decimals
+
+    @property
+    @ignore_errors([KeyError, TypeError])
+    def duration(self) -> float | None:
+        return round(float(self.ffprobe_info["format"]["duration"]), 2)
+
+    @property
+    @ignore_errors([KeyError, TypeError])
+    def size(self) -> str | None:
+        return size(int(self.ffprobe_info["format"]["size"]), system=si)
+
+    @property
+    @ignore_errors([KeyError, TypeError])
+    def codec(self) -> str | None:
+        return self.ffprobe_info["streams"][0]["codec_name"]
+
+    @property
+    @ignore_errors([KeyError, TypeError])
+    def fps(self) -> float | None:
+        avg_frame_rate = float(
+            Fraction(self.ffprobe_info["streams"][0]["avg_frame_rate"])
+        )
+        return round(avg_frame_rate, 2)
+
+    @property
+    @ignore_errors([KeyError, TypeError])
+    def resolution(self) -> tuple[int, int] | None:
+        return tuple(self.ffprobe_info["streams"][0][k] for k in ("width", "height"))
 
     def set_ffprobe_info(self) -> None:
         self.ffprobe_info = FFPROBE.call(self.file_path)
