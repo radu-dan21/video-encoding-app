@@ -1,0 +1,22 @@
+{% extends "console/base.html" %}
+
+{% load static %}
+
+{% block title %}
+    Confirm deletion OVF {{ object.id }}
+{% endblock %}
+
+{% block heading %}
+    Delete OVF <{{ object.id }}>
+{% endblock %}
+
+{% block content %}
+    <form method="post">{% csrf_token %}
+        <p>Are you sure you want to delete "{{ object }}"?</p>
+        {{ form }}
+        <div class="container" style="float: left;">
+            <a class="btn btn-secondary" style="margin-right: 20px;" href="{% url 'console:ovf_details' object.id %}" role="button">Back</a>
+            <input class="btn btn-danger" type="submit" value="Confirm deletion">
+        </div>
+    </form>
+{% endblock %}

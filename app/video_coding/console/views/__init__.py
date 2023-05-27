@@ -1,1 +1,2 @@
+from .original_video_file import OriginalVideoFileDeleteView, OriginalVideoFileView
 from .original_videos_list import OriginalVideoFileListView
