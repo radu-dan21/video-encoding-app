@@ -1,1 +1,1 @@
-from .original_video_file_form import OriginalVideoFileForm
+from .original_video_file import OriginalVideoFileForm

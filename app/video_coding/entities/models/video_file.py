@@ -97,8 +97,10 @@ class BaseVideoFile(BaseModel):
 
     @property
     @ignore_errors([KeyError, TypeError])
-    def resolution(self) -> tuple[int, int] | None:
-        return tuple(self.ffprobe_info["streams"][0][k] for k in ("width", "height"))
+    def resolution(self) -> str | None:
+        return " x ".join(
+            [str(self.ffprobe_info["streams"][0][k]) for k in ("width", "height")]
+        )
 
     def set_ffprobe_info(self) -> None:
         self.ffprobe_info = FFPROBE.call(self.file_path)

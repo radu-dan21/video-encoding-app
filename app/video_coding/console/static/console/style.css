@@ -51,3 +51,7 @@ div.content {
     float: none;
   }
 }
+
+.asteriskField {
+    display: none;
+}

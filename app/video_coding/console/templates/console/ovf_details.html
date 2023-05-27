@@ -2,6 +2,7 @@
 
 {% load static %}
 {% load extras %}
+{% load crispy_forms_tags %}
 
 {% block title %}
     OVF {{ form.instance.id }} details
@@ -13,17 +14,7 @@
 
 {% block content %}
     <form>
-        {% for field in form %}
-        <div class="form-group row">
-            <label for="{{ field.id_for_label }}" class="col-sm-2 col-form-label">{{ field.label_tag }}</label>
-            <div class="col-sm-10">
-                <pre>
-                    <input type="text" readonly class="form-control-plaintext" id="{{ field.id_for_label }}" value="{{ field.value | pretty_json }}">
-                </pre>
-            </div>
-        </div>
-        {% endfor %}
-        <pre>{{ form.ffprobe_info.value | pretty_json }}</pre>
+        {% crispy form %}
     </form>
 
     <a class="btn btn-danger" href="{{ form.instance.id }}/delete" role="button">Delete</a>
