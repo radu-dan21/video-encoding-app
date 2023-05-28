@@ -1,10 +1,12 @@
+from collections.abc import Callable
 from functools import wraps
+from typing import Any
 
 
-def ignore_errors(err_list: list[Exception] = None):
-    def decorator_ignore_errors(func):
+def ignore_errors(err_list: list[Exception] = None) -> Callable:
+    def decorator_ignore_errors(func) -> Callable:
         @wraps(func)
-        def wrapper_ignore_errors(*args, **kwargs):
+        def wrapper_ignore_errors(*args, **kwargs) -> Any:
             try:
                 return func(*args, **kwargs)
             except Exception as e:

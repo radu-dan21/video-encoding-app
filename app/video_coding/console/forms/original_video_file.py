@@ -1,19 +1,13 @@
-from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout
+from django import forms
 
-from video_coding.entities.models import OriginalVideoFile
+from video_coding.console.forms.base import BaseReadonlyForm
 from video_coding.console.layout import get_row
+from video_coding.entities.models import OriginalVideoFile
 
 
-class OriginalVideoFileForm(forms.ModelForm):
-    size = forms.CharField()
-    codec = forms.CharField()
-    resolution = forms.CharField()
-    fps = forms.FloatField()
-    bitrate = forms.FloatField()
-    duration = forms.FloatField()
-
+class OriginalVideoFileDetailsReadonlyForm(BaseReadonlyForm):
     class Meta:
         model = OriginalVideoFile
         fields = [
@@ -24,29 +18,26 @@ class OriginalVideoFileForm(forms.ModelForm):
         ]
 
     properties: list[str] = [
-        "bitrate",
-        "duration",
-        "size",
         "codec",
-        "fps",
+        "size",
         "resolution",
+        "duration",
+        "fps",
+        "bitrate",
     ]
 
+    codec = forms.CharField()
+    size = forms.CharField()
+    resolution = forms.CharField()
+    duration = forms.FloatField()
+    fps = forms.FloatField()
+    bitrate = forms.FloatField()
+
     def __init__(self, *args, **kwargs):
-        instance: OriginalVideoFile | None = kwargs.get("instance")
-        if instance:
-            kwargs["initial"] = {p: getattr(instance, p) for p in self.properties}
-
         super().__init__(*args, **kwargs)
-
-        for f in self.properties + self.Meta.fields:
-            self.fields[f].disabled = True
-
-        self.fields['bitrate'].label = 'Bitrate (Mbps)'
-        self.fields['duration'].label = 'Duration (seconds)'
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
-                get_row('name', 'file_name', 'codec'),
-                get_row('size', 'resolution', 'duration', "fps"),
+            get_row("name", "file_name", "codec"),
+            get_row("size", "resolution", "duration", "fps", "bitrate"),
         )

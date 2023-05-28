@@ -13,4 +13,4 @@ class BaseModel(models.Model):
     created_at = models.DateField(auto_now_add=True)
 
     def __str__(self) -> str:
-        return str(self.name) + " - " + super().__str__()
+        return f"{self.name} <{self.id}>"

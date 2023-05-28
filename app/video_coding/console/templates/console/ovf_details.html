@@ -1,7 +1,6 @@
 {% extends "console/base.html" %}
 
 {% load static %}
-{% load extras %}
 {% load crispy_forms_tags %}
 
 {% block title %}
@@ -16,6 +15,22 @@
     <form>
         {% crispy form %}
     </form>
+
+    <hr>
+
+    <h2>Video metrics</h2>
+    <div class="container">
+        {% crispy ifr_formset ifr_helper %}
+    </div>
+
+    <hr>
+
+    <h2>Encoded videos</h2>
+    <div class="container">
+        {% crispy evf_formset evf_helper %}
+    </div>
+
+    <hr>
 
     <a class="btn btn-danger" href="{{ form.instance.id }}/delete" role="button">Delete</a>
 {% endblock %}

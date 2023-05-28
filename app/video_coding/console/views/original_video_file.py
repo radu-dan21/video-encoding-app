@@ -1,15 +1,36 @@
+from itertools import chain
+
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import Http404
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views import View
-from django.views.generic import DeleteView
+from django.views.generic import DeleteView, ListView
 
-from video_coding.console.forms import OriginalVideoFileForm
-from video_coding.entities.models import OriginalVideoFile
+from video_coding.console.forms import (
+    EncodedVideoFileFormset,
+    EncodedVideoFileFormsetHelper,
+    InformationFilterResultFormset,
+    InformationFilterResultFormsetHelper,
+    OriginalVideoFileDetailsReadonlyForm,
+)
+from video_coding.entities.models import (
+    EncodedVideoFile,
+    InformationFilterResult,
+    OriginalVideoFile,
+)
 
 
-class OriginalVideoFileView(View):
+class OriginalVideoFileListView(ListView):
+    model = OriginalVideoFile
+    paginate_by = 10
+    template_name = "console/ovf_list.html"
+
+    def get_queryset(self):
+        return OriginalVideoFile.objects.all().order_by("-id")
+
+
+class OriginalVideoFileDetailsView(View):
     template_name = "console/ovf_details.html"
 
     @staticmethod
@@ -21,8 +42,30 @@ class OriginalVideoFileView(View):
 
     def get(self, request, *args, **kwargs):
         ovf: OriginalVideoFile = self._get_or_404(ovf_id=kwargs.get("ovf_id"))
-        form = OriginalVideoFileForm(instance=ovf)
-        return render(request, self.template_name, {"form": form})
+        form = OriginalVideoFileDetailsReadonlyForm(instance=ovf)
+        ifr_formset = InformationFilterResultFormset(
+            queryset=InformationFilterResult.objects.filter(video=ovf),
+        )
+
+        evfs = EncodedVideoFile.objects.filter(original_video_file=ovf)
+        evf_formset = EncodedVideoFileFormset(queryset=evfs)
+
+        cfrs = list(chain.from_iterable([e.comparison_filters for e in evfs]))
+        comparison_filters: list[str] = list({cfr.video_filter.name for cfr in cfrs})
+
+        return render(
+            request,
+            self.template_name,
+            {
+                "form": form,
+                "ifr_formset": ifr_formset,
+                "ifr_helper": InformationFilterResultFormsetHelper(),
+                "evf_formset": evf_formset,
+                "evf_helper": EncodedVideoFileFormsetHelper(
+                    extra_fields=comparison_filters,
+                ),
+            },
+        )
 
 
 class OriginalVideoFileDeleteView(SuccessMessageMixin, DeleteView):

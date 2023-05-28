@@ -1,7 +1,7 @@
 celery[redis,gevent]==5.2.7
+crispy-bootstrap4==2022.1
 Django==4.2
 django-crispy-forms==2.0
-crispy-bootstrap4==2022.1
 django-jsonform==2.16
 hurry.filesize==0.9
 ipython==8.12.0

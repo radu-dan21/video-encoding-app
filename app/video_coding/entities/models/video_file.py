@@ -200,6 +200,12 @@ class EncodedVideoFile(BaseVideoFile):
     def parent_dir(self) -> str:
         return os.path.join(self.original_video_file.parent_dir, self.REL_PATH_TO_OVF)
 
+    @property
+    def comparison_filters(self) -> list:
+        if not (dvf := self.decoded_video_file):
+            return []
+        return list(dvf.filter_results.all())
+
     def run_workflow(self) -> None:
         self.encode()
         super().run_workflow()
@@ -211,6 +217,7 @@ class EncodedVideoFile(BaseVideoFile):
             + self.video_encoding.ffmpeg_args
             + [self.file_path]
         )[0]
+        self.encoding_time = round(self.encoding_time, 2)
         self.save(update_fields=["encoding_time"])
 
 

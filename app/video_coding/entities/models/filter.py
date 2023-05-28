@@ -39,10 +39,9 @@ class FilterResults(BaseModel):
     # used for capturing (only) filter/metric output
     FFMPEG_CMD_SUFFIX: str = "-f null - |& tac 2>&1 | sed -n '0,/Parsed/p' | tac"
 
-    output = models.CharField(
+    output = models.TextField(
         blank=True,
-        default=True,
-        max_length=1024,
+        default="",
     )
 
     compute_time = models.FloatField(null=True)
@@ -53,10 +52,10 @@ class FilterResults(BaseModel):
         ...
 
     def call_ffmpeg(self, args: list[str]) -> str | None:
-        self.compute_time, output = FFMPEG.call(
+        self.compute_time, self.output = FFMPEG.call(
             args + self.FFMPEG_CMD_SUFFIX.split(" "),
         )
-        self.output = output
+        self.compute_time = round(self.compute_time, 2)
         self.save(update_fields=["compute_time", "output"])
 
 
@@ -97,6 +96,7 @@ class ComparisonFilterResult(FilterResults):
     video_to_compare = models.ForeignKey(
         DecodedVideoFile,
         on_delete=models.CASCADE,
+        related_name="filter_results",
     )
 
     def compute(self) -> None:
