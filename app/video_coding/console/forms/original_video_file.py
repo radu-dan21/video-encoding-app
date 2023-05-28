@@ -1,10 +1,17 @@
+from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout
 from django import forms
 
 from video_coding.console.forms.base import BaseReadonlyForm
+from video_coding.console.forms.utils import ModelMultipleChoiceField
 from video_coding.console.layout import get_row
-from video_coding.entities.models import OriginalVideoFile
+from video_coding.entities.models import (
+    ComparisonFilter,
+    InformationFilter,
+    OriginalVideoFile,
+    VideoEncoding,
+)
 
 
 class OriginalVideoFileDetailsReadonlyForm(BaseReadonlyForm):
@@ -41,3 +48,28 @@ class OriginalVideoFileDetailsReadonlyForm(BaseReadonlyForm):
             get_row("name", "file_name", "codec"),
             get_row("size", "resolution", "duration", "fps", "bitrate"),
         )
+
+
+class OriginalVideoFileCreateForm(forms.Form):
+    name = forms.CharField(max_length=255)
+    file = forms.FileField()
+    video_encodings = ModelMultipleChoiceField(model=VideoEncoding)
+    info_filters = ModelMultipleChoiceField(model=InformationFilter)
+    comparison_filters = ModelMultipleChoiceField(model=ComparisonFilter)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        helper = FormHelper()
+        helper.form_class = "form-horizontal"
+        helper.label_class = "col-lg-2"
+        helper.field_class = "col-lg-8"
+        helper.layout = Layout(
+            "name",
+            "file",
+            "video_encodings",
+            "info_filters",
+            "comparison_filters",
+            StrictButton("Save", css_class="btn-primary"),
+        )
+        self.helper = helper

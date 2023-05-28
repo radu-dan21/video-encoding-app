@@ -12,6 +12,7 @@ from video_coding.console.forms import (
     EncodedVideoFileFormsetHelper,
     InformationFilterResultFormset,
     InformationFilterResultFormsetHelper,
+    OriginalVideoFileCreateForm,
     OriginalVideoFileDetailsReadonlyForm,
 )
 from video_coding.entities.models import (
@@ -28,6 +29,14 @@ class OriginalVideoFileListView(ListView):
 
     def get_queryset(self):
         return OriginalVideoFile.objects.all().order_by("-id")
+
+
+class OriginalVideoFileCreateView(View):
+    template_name = "console/ovf_create.html"
+
+    def get(self, request, *args, **kwargs):
+        form = OriginalVideoFileCreateForm()
+        return render(request, self.template_name, {"form": form})
 
 
 class OriginalVideoFileDetailsView(View):
