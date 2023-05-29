@@ -217,7 +217,7 @@ class EncodedVideoFile(BaseVideoFile):
             + self.video_encoding.ffmpeg_args
             + [self.file_path]
         )[0]
-        self.encoding_time = round(self.encoding_time, 2)
+        self.encoding_time = round(self.encoding_time, 5)
         self.save(update_fields=["encoding_time"])
 
 

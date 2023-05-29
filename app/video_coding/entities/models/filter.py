@@ -55,7 +55,7 @@ class FilterResults(BaseModel):
         self.compute_time, self.output = FFMPEG.call(
             args + self.FFMPEG_CMD_SUFFIX.split(" "),
         )
-        self.compute_time = round(self.compute_time, 2)
+        self.compute_time = round(self.compute_time, 5)
         self.save(update_fields=["compute_time", "output"])
 
 
