@@ -5,7 +5,7 @@ from django.http import Http404
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views import View
-from django.views.generic import DeleteView, ListView
+from django.views.generic import DeleteView, FormView, ListView
 
 from video_coding.console.forms import (
     EncodedVideoFileFormset,
@@ -31,12 +31,11 @@ class OriginalVideoFileListView(ListView):
         return OriginalVideoFile.objects.all().order_by("-id")
 
 
-class OriginalVideoFileCreateView(View):
+class OriginalVideoFileCreateView(SuccessMessageMixin, FormView):
     template_name = "console/ovf_create.html"
-
-    def get(self, request, *args, **kwargs):
-        form = OriginalVideoFileCreateForm()
-        return render(request, self.template_name, {"form": form})
+    form_class = OriginalVideoFileCreateForm
+    success_url = reverse_lazy("console:home")
+    success_message = "Original video file created successfully!"
 
 
 class OriginalVideoFileDetailsView(View):
