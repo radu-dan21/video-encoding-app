@@ -1,6 +1,9 @@
+from typing import Any
+
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit
 from django import forms
+from django.core.exceptions import ValidationError
 
 from video_coding.console.forms.base import BaseReadonlyForm
 from video_coding.console.forms.utils import ModelMultipleChoiceField
@@ -11,6 +14,7 @@ from video_coding.entities.models import (
     OriginalVideoFile,
     VideoEncoding,
 )
+from video_coding.workflows import PrepareMainWorkflow
 
 
 class OriginalVideoFileDetailsReadonlyForm(BaseReadonlyForm):
@@ -86,3 +90,26 @@ class OriginalVideoFileCreateForm(forms.Form):
         )
         helper.add_input(Submit("submit", "Submit", css_class="btn-primary"))
         self.helper = helper
+
+    def clean_name(self) -> str:
+        data = self.cleaned_data["name"]
+        if OriginalVideoFile.objects.filter(name=data).exists():
+            raise ValidationError("Video with the same name already exists!")
+        return data
+
+    def save(self) -> OriginalVideoFile:
+        cd: dict[str, Any] = self.cleaned_data
+
+        ovf = OriginalVideoFile.objects.create(
+            name=cd["name"],
+            file_name=cd["file"].name,
+        )
+
+        PrepareMainWorkflow(
+            ovf_id=ovf.id,
+            encoding_ids=cd["video_encodings"].values_list("id", flat=True),
+            info_filter_ids=cd["info_filters"].values_list("id", flat=True),
+            comparison_filter_ids=cd["comparison_filters"].values_list("id", flat=True),
+        ).run()
+
+        return ovf

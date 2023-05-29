@@ -32,9 +32,15 @@ class EncodedVideoFileReadonlyForm(BaseReadonlyForm):
         for cfr in self.instance.comparison_filters:
             name: str = cfr.video_filter.name
             self.extra_fields.append(name)
-            self.fields[name] = forms.CharField(label=name, widget=forms.Textarea)
-            self.fields[name].initial = cfr.output
-            self.fields[name].disabled = True
+            self._create_output_charfield(name, cfr.output)
+
+    def _create_output_charfield(self, name: str, output: str) -> None:
+        self.fields[name] = forms.CharField(
+            label=name,
+            widget=forms.Textarea(attrs={"rows": 5}),
+        )
+        self.fields[name].initial = output
+        self.fields[name].disabled = True
 
 
 EncodedVideoFileFormset = forms.modelformset_factory(
