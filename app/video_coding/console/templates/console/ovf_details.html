@@ -13,7 +13,9 @@
 {% endblock %}
 
 {% block content %}
-    {{ form.instance|ovf_status_html }}
+    <hr>
+        {{ form.instance|ovf_status_html }}
+    <hr>
 
     <form>
         {% crispy form %}
@@ -22,10 +24,15 @@
     <hr>
 
     <h2>Video metrics</h2>
-    <div class="container">
-        {% crispy ifr_formset ifr_helper %}
-    </div>
-
+        {% if ifr_formset.total_form_count == 0 %}
+        <div class="alert alert-info" role="alert">
+            There were no metrics selected for the original video!
+        </div>
+        {% else %}
+            <div class="container">
+                {% crispy ifr_formset ifr_helper %}
+            </div>
+        {% endif %}
     <hr>
 
     <h2>Encoded videos</h2>

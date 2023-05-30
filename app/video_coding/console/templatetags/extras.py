@@ -10,9 +10,9 @@ register = template.Library()
 @register.filter(needs_autoescape=True)
 def ovf_status_html(ovf: OriginalVideoFile, autoescape=True):
     Status = OriginalVideoFile.Status
-    # status: (alert_class, message) | None
-    ovf_status_html_mapping: dict[Status, tuple[str, str] | None] = {
-        Status.DONE: None,
+    # status: (alert_class, message)
+    ovf_status_html_mapping: dict[Status, tuple[str, str]] = {
+        Status.DONE: ("alert alert-success", "Workflow completed successfully!"),
         Status.READY: ("alert-warning", "Video processing did not start yet!"),
         Status.ENCODING: ("alert-warning", "Child video files are being encoded!"),
         Status.METRICS: ("alert-warning", "Metrics are being computed!"),
@@ -26,11 +26,9 @@ def ovf_status_html(ovf: OriginalVideoFile, autoescape=True):
     if alert_message_tuple:
         alert_class, message = alert_message_tuple
         html_to_render = f"""
-            <hr>
-                <div class="alert {alert_class}" role="alert">
-                    {message}
-                </div>
-            <hr>
+            <div class="alert {alert_class}" role="alert">
+                {message}
+            </div>
         """
     return mark_safe(html_to_render)
 
