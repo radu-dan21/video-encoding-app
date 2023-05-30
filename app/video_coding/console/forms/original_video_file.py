@@ -60,6 +60,8 @@ class OriginalVideoFileCreateForm(forms.Form):
         max_length=255,
         required=True,
     )
+    # TODO: add option to use video from container
+    #  (either from separate folder or re-use some video from another existing entity)
     file = forms.FileField(
         required=True,
         validators=[
