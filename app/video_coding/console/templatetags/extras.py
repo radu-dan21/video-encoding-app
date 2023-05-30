@@ -33,3 +33,15 @@ def ovf_status_html(ovf: OriginalVideoFile, autoescape=True):
             <hr>
         """
     return mark_safe(html_to_render)
+
+
+@register.filter(needs_autoescape=True)
+def ovf_status_icon(ovf: OriginalVideoFile, autoescape=True):
+    Status = OriginalVideoFile.Status
+    ovf_status_icon_class_mapping: dict[Status, str] = {
+        Status.DONE: "bi bi-check",
+        Status.FAILED: "bi bi-bug",
+    }
+    default_class = "spinner-border spinner-border-sm"
+    css_class: str = ovf_status_icon_class_mapping.get(ovf.status, default_class)
+    return mark_safe(f"""<span class="{css_class}"></span>""")

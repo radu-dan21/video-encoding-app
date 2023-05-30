@@ -1,6 +1,7 @@
 {% extends "console/base.html" %}
 
 {% load static %}
+{% load extras %}
 
 {% block title %}
     Home
@@ -33,7 +34,10 @@
             <th scope="row">{{ ovf.id }}</th>
             <td>{{ ovf.name }}</td>
             <td>{{ ovf.file_name }}</td>
-            <td>{{ ovf.get_status_display }}</td>
+            <td>
+                {{ ovf.get_status_display }}
+                {{ ovf|ovf_status_icon }}
+            </td>
             <td>{{ ovf.created_at }}</td>
         </tr>
         {% endfor %}
@@ -59,4 +63,12 @@
     </div>
 
     <a class="btn btn-primary" href="create" role="button">Create</a>
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script src="{% static 'console/reload.js' %}"></script>
+    <script>
+        setInterval(reload, 3000);
+    </script>
 {% endblock %}
