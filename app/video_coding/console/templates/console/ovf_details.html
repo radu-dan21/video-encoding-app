@@ -2,6 +2,7 @@
 
 {% load static %}
 {% load crispy_forms_tags %}
+{% load extras %}
 
 {% block title %}
     OVF {{ form.instance.id }} details
@@ -12,6 +13,8 @@
 {% endblock %}
 
 {% block content %}
+    {{ form.instance|ovf_status_html }}
+
     <form>
         {% crispy form %}
     </form>
