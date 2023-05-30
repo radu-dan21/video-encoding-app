@@ -1,5 +1,7 @@
 import factory
 
+from factory import fuzzy
+
 from video_coding.entities import models
 
 
@@ -14,6 +16,7 @@ class VideoEncodingFactory(BaseModelFactory):
     class Meta:
         model = models.VideoEncoding
 
+    video_extension = fuzzy.FuzzyChoice(models.VALID_VIDEO_FILE_EXTENSION_LIST)
     ffmpeg_args = factory.List(FFMPEG_TEST_ARGS)
 
 

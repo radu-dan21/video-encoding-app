@@ -4,11 +4,13 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit
 from django import forms
 from django.core.exceptions import ValidationError
+from django.core.validators import FileExtensionValidator
 
 from video_coding.console.forms.base import BaseReadonlyForm
 from video_coding.console.forms.utils import ModelMultipleChoiceField
 from video_coding.console.layout import get_row
 from video_coding.entities.models import (
+    VALID_VIDEO_FILE_EXTENSION_LIST,
     ComparisonFilter,
     InformationFilter,
     OriginalVideoFile,
@@ -58,7 +60,12 @@ class OriginalVideoFileCreateForm(forms.Form):
         max_length=255,
         required=True,
     )
-    file = forms.FileField(required=True)
+    file = forms.FileField(
+        required=True,
+        validators=[
+            FileExtensionValidator(VALID_VIDEO_FILE_EXTENSION_LIST),
+        ],
+    )
     video_encodings = ModelMultipleChoiceField(
         model=VideoEncoding,
         required=True,

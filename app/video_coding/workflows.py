@@ -34,9 +34,17 @@ class PrepareMainWorkflow:
         self.create_comparison_filter_results(decoded_video_files)
 
     def create_encoded_video_files(self) -> list[EncodedVideoFile]:
+        def _get_evf_extension(enc_: VideoEncoding) -> str:
+            enc_ext: str = enc_.video_extension
+            return (
+                enc_ext
+                if enc._meta.get_field("video_extension").get_default() != enc_ext
+                else self.ovf.extension
+            ).strip(" .")
+
         encoded_video_files: list[EncodedVideoFile] = []
         for enc in self.encodings:
-            evf_extension: str = (enc.video_extension or self.ovf.extension).strip(" .")
+            evf_extension: str = _get_evf_extension(enc)
             name: str = f"evf_{enc.name}_ovf_{self.ovf.id}"
             encoded_video_files.append(
                 EncodedVideoFile.objects.create(
