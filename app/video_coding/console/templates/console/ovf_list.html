@@ -35,7 +35,8 @@
             <td>{{ ovf.name }}</td>
             <td>{{ ovf.file_name }}</td>
             <td style="color: {{ ovf|ovf_status_color }};">
-                <b>{{ ovf.get_status_display }} {{ ovf|ovf_status_icon }}</b>
+                <b class="status">{{ ovf.get_status_display }}</b>
+                 {{ ovf|ovf_status_icon }}
             </td>
             <td>{{ ovf.created_at }}</td>
         </tr>
@@ -68,6 +69,23 @@
     {{ block.super }}
     <script src="{% static 'console/reload.js' %}"></script>
     <script>
-        setInterval(reload, 3000);
+        var reloadIntervalId;
+        function reloadIfAnyOVFInProgress() {
+            var anyInProgress = false;
+            $('.status').each(
+                function(index) {
+                    if (!['Done', 'Failed'].includes($( this ).text())) {
+                        anyInProgress = true;
+                        return false;
+                    }
+                }
+            );
+            if (anyInProgress) {
+                reload();
+            } else {
+                clearInterval(reloadIntervalId);
+            }
+        }
+        reloadIntervalId = setInterval(reloadIfAnyOVFInProgress, 5000);
     </script>
 {% endblock %}
