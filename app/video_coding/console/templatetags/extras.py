@@ -50,7 +50,7 @@ def ovf_status_color(ovf: OriginalVideoFile, autoescape=True):
     Status = OriginalVideoFile.Status
     ovf_status_color_mapping: dict[Status, str] = {
         Status.DONE: "#155724",
-        Status.FAILED: "#721c24"
+        Status.FAILED: "#721c24",
     }
     default_color: str = "#856404"
     return mark_safe(ovf_status_color_mapping.get(ovf.status, default_color))
