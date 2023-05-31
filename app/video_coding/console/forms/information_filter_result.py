@@ -15,6 +15,10 @@ class InformationFilterResultReadonlyForm(BaseReadonlyForm):
 
     field_label_mapping = {"compute_time": "Compute time (seconds)"}
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["output"].widget = forms.Textarea(attrs={"rows": 13})
+
 
 InformationFilterResultFormset = forms.modelformset_factory(
     InformationFilterResult,
