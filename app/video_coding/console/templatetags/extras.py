@@ -27,7 +27,7 @@ def ovf_status_html(ovf: OriginalVideoFile, autoescape=True):
         alert_class, message = alert_message_tuple
         html_to_render = f"""
             <div class="alert {alert_class}" role="alert">
-                {message}
+                {message} {ovf_status_icon(ovf)}
             </div>
         """
     return mark_safe(html_to_render)
@@ -38,7 +38,7 @@ def ovf_status_icon(ovf: OriginalVideoFile, autoescape=True):
     Status = OriginalVideoFile.Status
     ovf_status_icon_class_mapping: dict[Status, str] = {
         Status.DONE: "bi bi-check",
-        Status.FAILED: "bi bi-bug",
+        Status.FAILED: "bi bi-x",
     }
     default_class = "spinner-border spinner-border-sm"
     css_class: str = ovf_status_icon_class_mapping.get(ovf.status, default_class)
