@@ -117,8 +117,9 @@ class BaseVideoFile(BaseModel):
 class OriginalVideoFile(BaseVideoFile):
     class Status(models.TextChoices):
         READY = "R", _("Ready")
+        INFO_METRICS = "I", _("Computing original video metrics")
         ENCODING = "E", _("Encoding child videos")
-        METRICS = "M", _("Computing metrics")
+        COMPARISON_METRICS = "C", _("Computing encoded video(s) metrics")
         DONE = "D", _("Done")
         FAILED = "F", _("Failed")
 
@@ -151,8 +152,9 @@ class OriginalVideoFile(BaseVideoFile):
     def run_workflow(self) -> None:
         try:
             super().run_workflow()
+            self.compute_information_metrics()
             self.encode_video_files()
-            self.compute_metrics()
+            self.compute_comparison_metrics()
             self.set_status(self.Status.DONE)
         except Exception as e:
             self.set_failed(str(e))
@@ -164,16 +166,21 @@ class OriginalVideoFile(BaseVideoFile):
         for evf in self.encoded_video_files.all():
             evf.run_workflow()
 
-    def compute_metrics(self) -> None:
-        logger.info(f"Computing metrics for {self}")
-        self.set_status(self.Status.METRICS)
-        filter_results_fields: list[str] = [
-            "info_filter_results",
-            "comparison_filter_results",
-        ]
-        for filter_result_field in filter_results_fields:
-            for f in getattr(self, filter_result_field).all():
-                f.compute()
+    def compute_information_metrics(self) -> None:
+        logger.info(f"Computing information metrics for {self}")
+        ifrs = self.info_filter_results.all()
+        if ifrs:
+            self.set_status(self.Status.INFO_METRICS)
+            for ifr in ifrs:
+                ifr.compute()
+
+    def compute_comparison_metrics(self) -> None:
+        logger.info(f"Computing comparison metrics for {self}")
+        cfrs = self.comparison_filter_results.all()
+        if cfrs:
+            self.set_status(self.Status.COMPARISON_METRICS)
+            for cfr in cfrs:
+                cfr.compute()
 
 
 class EncodedVideoFile(BaseVideoFile):

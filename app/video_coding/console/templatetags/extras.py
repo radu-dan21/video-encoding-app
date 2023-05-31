@@ -14,8 +14,15 @@ def ovf_status_html(ovf: OriginalVideoFile, autoescape=True):
     ovf_status_html_mapping: dict[Status, tuple[str, str]] = {
         Status.DONE: ("alert alert-success", "Workflow completed successfully!"),
         Status.READY: ("alert-warning", "Video processing did not start yet!"),
+        Status.INFO_METRICS: (
+            "alert-warning",
+            "Original video metrics are being computed!",
+        ),
         Status.ENCODING: ("alert-warning", "Child video files are being encoded!"),
-        Status.METRICS: ("alert-warning", "Metrics are being computed!"),
+        Status.COMPARISON_METRICS: (
+            "alert-warning",
+            "Child video(s) metrics are being computed!",
+        ),
         Status.FAILED: (
             "alert-danger",
             f"Workflow failed with error: <{ovf.error_message}>!",
