@@ -26,7 +26,7 @@ def ovf_status_html(ovf: OriginalVideoFile, autoescape=True):
     if alert_message_tuple:
         alert_class, message = alert_message_tuple
         html_to_render = f"""
-            <div class="alert {alert_class}" role="alert">
+            <div class="alert alert-fixed {alert_class}" role="alert">
                 {message} {ovf_status_icon(ovf)}
             </div>
         """
