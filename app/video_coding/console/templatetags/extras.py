@@ -40,6 +40,17 @@ def ovf_status_icon(ovf: OriginalVideoFile, autoescape=True):
         Status.DONE: "bi bi-check",
         Status.FAILED: "bi bi-x",
     }
-    default_class = "spinner-border spinner-border-sm"
+    default_class: str = "spinner-border spinner-border-sm"
     css_class: str = ovf_status_icon_class_mapping.get(ovf.status, default_class)
     return mark_safe(f"""<span class="{css_class}"></span>""")
+
+
+@register.filter(needs_autoescape=True)
+def ovf_status_color(ovf: OriginalVideoFile, autoescape=True):
+    Status = OriginalVideoFile.Status
+    ovf_status_color_mapping: dict[Status, str] = {
+        Status.DONE: "#155724",
+        Status.FAILED: "#721c24"
+    }
+    default_color: str = "#856404"
+    return mark_safe(ovf_status_color_mapping.get(ovf.status, default_color))

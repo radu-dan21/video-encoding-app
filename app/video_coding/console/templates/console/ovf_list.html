@@ -34,9 +34,8 @@
             <th scope="row">{{ ovf.id }}</th>
             <td>{{ ovf.name }}</td>
             <td>{{ ovf.file_name }}</td>
-            <td>
-                {{ ovf.get_status_display }}
-                {{ ovf|ovf_status_icon }}
+            <td style="color: {{ ovf|ovf_status_color }};">
+                <b>{{ ovf.get_status_display }} {{ ovf|ovf_status_icon }}</b>
             </td>
             <td>{{ ovf.created_at }}</td>
         </tr>
