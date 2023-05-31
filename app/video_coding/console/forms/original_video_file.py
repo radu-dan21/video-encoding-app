@@ -1,7 +1,7 @@
 from typing import Any
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Submit
+from crispy_forms.layout import Layout, Submit, Field
 from django import forms
 from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
@@ -48,10 +48,13 @@ class OriginalVideoFileDetailsReadonlyForm(BaseReadonlyForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.fields["status"].widget = forms.HiddenInput()
+
         self.helper = FormHelper()
         self.helper.layout = Layout(
             get_row("name", "file_name", "codec"),
             get_row("size", "resolution", "duration", "fps", "bitrate"),
+            Field("status"),
         )
 
 
