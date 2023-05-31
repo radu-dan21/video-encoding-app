@@ -1,6 +1,5 @@
 import logging
 import os
-import shutil
 
 from abc import abstractmethod
 from fractions import Fraction
@@ -15,6 +14,7 @@ from hurry.filesize import si, size
 from video_coding.entities.models.base import BaseModel
 from video_coding.entities.utils.decorators import ignore_errors
 from video_coding.handlers import vf_post_delete_hook, vf_post_save_hook
+from video_coding.tasks import remove_file_tree
 from video_coding.utils import FFMPEG, FFPROBE, Decode
 
 
@@ -111,7 +111,7 @@ class BaseVideoFile(BaseModel):
             os.makedirs(self.parent_dir)
 
     def remove_folder_structure(self) -> None:
-        shutil.rmtree(self.parent_dir, ignore_errors=True)
+        remove_file_tree.delay(self.parent_dir)
 
 
 class OriginalVideoFile(BaseVideoFile):

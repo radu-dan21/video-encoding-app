@@ -20,6 +20,19 @@ from video_coding.entities.models import (
 from video_coding.workflows import PrepareMainWorkflow
 
 
+def rm_folder_structure_sync(ovf) -> None:
+    shutil.rmtree(ovf.parent_dir, ignore_errors=True)
+
+
+@fixture(autouse=True)
+def delete_files_sync(mocker):
+    rm_folder_structure: str = (
+        "video_coding.entities.models.video_file."
+        "BaseVideoFile.remove_folder_structure"
+    )
+    mocker.patch(rm_folder_structure, rm_folder_structure_sync)
+
+
 @fixture
 def ovf() -> OriginalVideoFile:
     return OriginalVideoFileFactory.create()
