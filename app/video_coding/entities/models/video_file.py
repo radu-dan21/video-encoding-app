@@ -21,7 +21,7 @@ from video_coding.utils import FFMPEG, FFPROBE, Decode
 logger = logging.getLogger(__name__)
 
 
-VIDEOS_PATH = settings.VIDEOS_PATH
+PROCESSED_VIDEOS_PATH = settings.PROCESSED_VIDEOS_PATH
 
 
 class BaseVideoFile(BaseModel):
@@ -137,7 +137,7 @@ class OriginalVideoFile(BaseVideoFile):
 
     @property
     def parent_dir(self) -> str:
-        return os.path.join(VIDEOS_PATH, f"{self.id}/")
+        return os.path.join(PROCESSED_VIDEOS_PATH, f"{self.id}/")
 
     def set_status(self, status: Status.choices, commit=True) -> None:
         self.status = status

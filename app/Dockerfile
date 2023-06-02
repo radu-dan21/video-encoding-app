@@ -34,4 +34,5 @@ FROM base AS test
 
 COPY ./app/requirements_test.txt .
 RUN pip install -r requirements_test.txt
-RUN mkdir /tmp/videos
+RUN mkdir -p /tmp/videos/processed
+RUN mkdir -p /tmp/videos/resources

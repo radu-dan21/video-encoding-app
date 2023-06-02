@@ -42,9 +42,10 @@ class OriginalVideoFileCreateView(SuccessMessageMixin, FormView):
     success_message = "Original video file created successfully!"
 
     def form_valid(self, form: OriginalVideoFileCreateForm) -> HttpResponse:
-        ovf: OriginalVideoFile = form.save()
-        self.handle_uploaded_file(self.request.FILES["file"], ovf.file_path)
-        run_ovf_workflow.delay(ovf_id=ovf.id)
+        ovf, file_path = form.save()
+        if not file_path:
+            self.handle_uploaded_file(self.request.FILES["file"], ovf.file_path)
+        run_ovf_workflow.delay(ovf_id=ovf.id, file_path=file_path)
         return super().form_valid(form)
 
     @staticmethod

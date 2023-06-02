@@ -202,6 +202,3 @@ atlassian-ide-plugin.xml
 
 # Editor-based Rest Client
 .idea/httpRequests
-
-# Video files
-app/videos/

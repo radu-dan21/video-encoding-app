@@ -139,6 +139,14 @@ CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap4"
 CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 VIDEOS_PATH: str = os.environ.get("VIDEOS_PATH", "/usr/src/app/videos")
+PROCESSED_VIDEOS_PATH: str = os.path.join(
+    VIDEOS_PATH,
+    os.environ.get("PROCESSED_OVFS_REL_PATH", "processed/"),
+)
+VIDEOS_FOR_PROCESSING_PATH: str = os.path.join(
+    VIDEOS_PATH,
+    os.environ.get("OVFS_FOR_PROCESSING_REL_PATH", "resources/"),
+)
 
 REDIS_HOST = os.environ.get("REDIS_HOST", "redis")
 REDIS_PORT = int(os.environ.get("REDIS_PORT", 6379))

@@ -3,6 +3,7 @@ from typing import Any
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Field, Layout, Submit
 from django import forms
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
 
@@ -11,6 +12,7 @@ from video_coding.console.forms.utils import ModelMultipleChoiceField
 from video_coding.console.layout import get_row
 from video_coding.entities.models import (
     VALID_VIDEO_FILE_EXTENSION_LIST,
+    VIDEO_FILE_NAME_REGEX,
     ComparisonFilter,
     InformationFilter,
     OriginalVideoFile,
@@ -63,10 +65,13 @@ class OriginalVideoFileCreateForm(forms.Form):
         max_length=255,
         required=True,
     )
-    # TODO: add option to use video from container
-    #  (either from separate folder or re-use some video from another existing entity)
+    path = forms.FilePathField(
+        path=settings.VIDEOS_FOR_PROCESSING_PATH,
+        match=VIDEO_FILE_NAME_REGEX,
+        required=False,
+    )
     file = forms.FileField(
-        required=True,
+        required=False,
         validators=[
             FileExtensionValidator(VALID_VIDEO_FILE_EXTENSION_LIST),
         ],
@@ -95,6 +100,7 @@ class OriginalVideoFileCreateForm(forms.Form):
         helper.field_class = "col-lg-8"
         helper.layout = Layout(
             "name",
+            "path",
             "file",
             "video_encodings",
             "info_filters",
@@ -109,13 +115,20 @@ class OriginalVideoFileCreateForm(forms.Form):
             raise ValidationError("Video with the same name already exists!")
         return data
 
-    def save(self) -> OriginalVideoFile:
+    def clean(self) -> dict[str, Any]:
+        cd: dict[str, Any] = super().clean()
+        if not bool(cd["path"]) ^ bool(cd["file"]):
+            raise ValidationError(
+                "You must either upload a file or select one from the list!"
+            )
+        return cd
+
+    def save(self) -> tuple[OriginalVideoFile, str]:
         cd: dict[str, Any] = self.cleaned_data
 
-        ovf = OriginalVideoFile.objects.create(
-            name=cd["name"],
-            file_name=cd["file"].name,
-        )
+        file_name: str = cd["file"].name if cd["file"] else cd["path"].split("/")[-1]
+
+        ovf = OriginalVideoFile.objects.create(name=cd["name"], file_name=file_name)
 
         PrepareMainWorkflow(
             ovf_id=ovf.id,
@@ -124,4 +137,4 @@ class OriginalVideoFileCreateForm(forms.Form):
             comparison_filter_ids=cd["comparison_filters"].values_list("id", flat=True),
         ).run()
 
-        return ovf
+        return ovf, cd["path"]

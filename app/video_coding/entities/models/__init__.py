@@ -1,5 +1,5 @@
 from .base import BaseModel
-from .choices import VALID_VIDEO_FILE_EXTENSION_LIST
+from .choices import VALID_VIDEO_FILE_EXTENSION_LIST, VIDEO_FILE_NAME_REGEX
 from .filter import (
     ComparisonFilter,
     ComparisonFilterResult,

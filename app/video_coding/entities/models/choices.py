@@ -46,3 +46,9 @@ DEFAULT_VIDEO_EXT_CHOICE: tuple = ("", _("---"))
 VALID_VIDEO_FILE_CHOICES_LIST: list[tuple[str, str]] = [DEFAULT_VIDEO_EXT_CHOICE] + [
     (ext, _(ext)) for ext in VALID_VIDEO_FILE_EXTENSION_LIST
 ]
+
+VIDEO_FILE_NAME_REGEX: str = r"({})".format(
+    "|".join(
+        [f"({ext})" for ext in VALID_VIDEO_FILE_EXTENSION_LIST],
+    ),
+)
