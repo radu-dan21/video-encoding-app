@@ -1,5 +1,6 @@
 import logging
 import os
+import shutil
 
 from abc import abstractmethod
 from fractions import Fraction
@@ -116,10 +117,11 @@ class BaseVideoFile(BaseModel):
 
 class OriginalVideoFile(BaseVideoFile):
     class Status(models.TextChoices):
+        COPYING = "C", _("Copying video file")
         READY = "R", _("Ready")
         INFO_METRICS = "I", _("Computing original video metrics")
         ENCODING = "E", _("Encoding child videos")
-        COMPARISON_METRICS = "C", _("Computing encoded video(s) metrics")
+        COMPARISON_METRICS = "M", _("Computing encoded video(s) metrics")
         DONE = "D", _("Done")
         FAILED = "F", _("Failed")
 
@@ -181,6 +183,15 @@ class OriginalVideoFile(BaseVideoFile):
             self.set_status(self.Status.COMPARISON_METRICS)
             for cfr in cfrs:
                 cfr.compute()
+
+    def handle_file_copy(self, source_path: str) -> None:
+        logger.info(f"Copying video from <{source_path}> to {self.parent_dir}!")
+        self.set_status(self.Status.COPYING)
+        try:
+            shutil.copy2(source_path, self.parent_dir)
+        except Exception as e:
+            self.set_failed(str(e))
+            raise e
 
 
 class EncodedVideoFile(BaseVideoFile):

@@ -13,14 +13,8 @@ def run_ovf_workflow(ovf_id: int, file_path: str, *args, **kwargs):
     from video_coding.entities.models import OriginalVideoFile
 
     ovf = OriginalVideoFile.objects.get(id=ovf_id)
-
     if file_path:
-        try:
-            shutil.copy2(file_path, ovf.file_path)
-        except Exception as e:
-            ovf.set_failed(str(e))
-            return
-
+        ovf.handle_file_copy(file_path)
     ovf.run_workflow()
 
 
