@@ -55,8 +55,9 @@ class BaseVideoFile(BaseModel):
     @abstractmethod
     def run_workflow(self) -> None:
         logger.info(f"Starting workflow for {self}")
-        logger.info(f"Setting ffprobe info for {self}")
-        self.set_ffprobe_info()
+        if not self.ffprobe_info:
+            logger.info(f"Setting ffprobe info for {self}")
+            self.set_ffprobe_info()
 
     @property
     def extension(self) -> str:
@@ -71,7 +72,7 @@ class BaseVideoFile(BaseModel):
     @ignore_errors([KeyError, TypeError])
     def bitrate(self) -> float | None:
         bps: int = int(self.ffprobe_info["format"]["bit_rate"])
-        return round(bps / 10**6, 2)  # Mbps rounded to 2 decimals
+        return round(bps / 10**3, 2)  # Kbps rounded to 2 decimals
 
     @property
     @ignore_errors([KeyError, TypeError])
@@ -156,7 +157,6 @@ class OriginalVideoFile(BaseVideoFile):
             super().run_workflow()
             self.compute_information_metrics()
             self.encode_video_files()
-            self.compute_comparison_metrics()
             self.set_status(self.Status.DONE)
         except Exception as e:
             self.set_failed(str(e))
@@ -170,19 +170,11 @@ class OriginalVideoFile(BaseVideoFile):
 
     def compute_information_metrics(self) -> None:
         logger.info(f"Computing information metrics for {self}")
-        ifrs = self.info_filter_results.all()
+        ifrs = self.info_filter_results.filter(output="")
         if ifrs:
             self.set_status(self.Status.INFO_METRICS)
             for ifr in ifrs:
                 ifr.compute()
-
-    def compute_comparison_metrics(self) -> None:
-        logger.info(f"Computing comparison metrics for {self}")
-        cfrs = self.comparison_filter_results.all()
-        if cfrs:
-            self.set_status(self.Status.COMPARISON_METRICS)
-            for cfr in cfrs:
-                cfr.compute()
 
     def handle_file_copy(self, source_path: str) -> None:
         logger.info(f"Copying video from <{source_path}> to {self.parent_dir}!")
@@ -230,6 +222,8 @@ class EncodedVideoFile(BaseVideoFile):
         self.decoded_video_file.run_workflow()
 
     def encode(self) -> None:
+        if self.encoding_time:
+            return
         self.encoding_time = FFMPEG.call(
             ["-y", "-i", f'"{self.original_video_file.file_path}"']
             + self.video_encoding.ffmpeg_args
@@ -261,10 +255,20 @@ class DecodedVideoFile(BaseVideoFile):
     def run_workflow(self) -> None:
         self.decode()
         super().run_workflow()
+        self.compute_comparison_metrics()
+        remove_file_tree(self.file_path)
+
+    def compute_comparison_metrics(self) -> None:
+        logger.info(f"Computing comparison metrics for {self}")
+        cfrs = self.filter_results.filter(output="")
+        if cfrs:
+            for cfr in cfrs:
+                cfr.compute()
 
     def decode(self) -> None:
-        self.decoding_time = Decode.call(
-            input_file_path=self.encoded_video_file.file_path,
-            output_file_path=self.file_path,
-        )
-        self.save(update_fields=["decoding_time"])
+        if not self.decoding_time:
+            self.decoding_time = Decode.call(
+                input_file_path=self.encoded_video_file.file_path,
+                output_file_path=self.file_path,
+            )
+            self.save(update_fields=["decoding_time"])
