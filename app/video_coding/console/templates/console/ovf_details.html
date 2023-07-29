@@ -44,19 +44,3 @@
 
     <a class="btn btn-danger" href="{{ form.instance.id }}/delete" role="button">Delete</a>
 {% endblock %}
-
-{% block scripts %}
-    {{ block.super }}
-    <script src="{% static 'console/reload.js' %}"></script>
-    <script>
-        var reloadIntervalId;
-        function reloadUntilStatusIsComplete() {
-            if (['D', 'F'].includes($('#id_status').attr('value'))) {
-                clearInterval(reloadIntervalId);
-            } else {
-                reload();
-            }
-        }
-        reloadIntervalId = setInterval(reloadUntilStatusIsComplete, 5000);
-    </script>
-{% endblock %}

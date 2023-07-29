@@ -64,28 +64,3 @@
 
     <a class="btn btn-primary" href="create" role="button">Create</a>
 {% endblock %}
-
-{% block scripts %}
-    {{ block.super }}
-    <script src="{% static 'console/reload.js' %}"></script>
-    <script>
-        var reloadIntervalId;
-        function reloadIfAnyOVFInProgress() {
-            var anyInProgress = false;
-            $('.status').each(
-                function(index) {
-                    if (!['Done', 'Failed'].includes($( this ).text())) {
-                        anyInProgress = true;
-                        return false;
-                    }
-                }
-            );
-            if (anyInProgress) {
-                reload();
-            } else {
-                clearInterval(reloadIntervalId);
-            }
-        }
-        reloadIntervalId = setInterval(reloadIfAnyOVFInProgress, 5000);
-    </script>
-{% endblock %}
