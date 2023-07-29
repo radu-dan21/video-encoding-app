@@ -59,7 +59,7 @@ class PrepareMainWorkflow:
     def create_decoded_video_files(
         self, encoded_video_files: list[EncodedVideoFile]
     ) -> list[DecodedVideoFile]:
-        extension: str = 'mkv'
+        extension: str = "mkv"
         decoded_video_files: list[EncodedVideoFile] = []
         for evf in encoded_video_files:
             name: str = f"dvf_{evf.video_encoding.name}_evf_{evf.id}_ovf_{self.ovf.id}"
