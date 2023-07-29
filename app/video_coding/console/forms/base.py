@@ -43,5 +43,5 @@ class RowFormsetHelper(FormHelper):
         self.form_class = "row flex-nowrap overflow-auto"
         fields: list[str] = self.form_type.get_all_fields() + extra_fields
         self.layout = Layout(
-            Column(*[UneditableField(f) for f in fields]),
+            Column(*[UneditableField(f) for f in fields], style="min-width: 300px;"),
         )
