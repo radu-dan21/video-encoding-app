@@ -16,6 +16,7 @@ VALID_VIDEO_FILE_EXTENSION_LIST: list[str] = [
     "qt",
     "wmv",
     "yuv",
+    "y4m",
     "rm",
     "asf",
     "amv",
