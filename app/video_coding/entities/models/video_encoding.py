@@ -5,10 +5,26 @@ from video_coding.entities.models.base import BaseModel
 from video_coding.entities.models.choices import VALID_VIDEO_FILE_CHOICES_LIST
 
 
-class VideoEncoding(BaseModel):
+class Codec(BaseModel):
     ffmpeg_args = ArrayField(
         models.CharField(max_length=BaseModel.MAX_CHAR_FIELD_LEN),
     )
+
+
+class VideoEncoding(BaseModel):
+    codec = models.ForeignKey(
+        Codec,
+        on_delete=models.CASCADE,
+        related_name="settings",
+    )
+
+    extra_ffmpeg_args = ArrayField(
+        models.CharField(max_length=BaseModel.MAX_CHAR_FIELD_LEN),
+    )
+
+    @property
+    def ffmpeg_args(self) -> list[str]:
+        return self.codec.ffmpeg_args + self.extra_ffmpeg_args
 
     # if blank, the extension of the original video file will be used
     video_extension = models.CharField(

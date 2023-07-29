@@ -8,7 +8,7 @@ from .filter import (
     InformationFilter,
     InformationFilterResult,
 )
-from .video_encoding import VideoEncoding
+from .video_encoding import Codec, VideoEncoding
 from .video_file import (
     BaseVideoFile,
     DecodedVideoFile,

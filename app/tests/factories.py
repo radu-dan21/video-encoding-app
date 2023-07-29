@@ -12,12 +12,20 @@ class BaseModelFactory(factory.django.DjangoModelFactory):
     name = factory.LazyAttributeSequence(lambda o, i: f"{o.__class__.__name__}_{i}")
 
 
+class CodecFactory(BaseModelFactory):
+    class Meta:
+        model = models.Codec
+
+    ffmpeg_args = factory.List(FFMPEG_TEST_ARGS)
+
+
 class VideoEncodingFactory(BaseModelFactory):
     class Meta:
         model = models.VideoEncoding
 
+    codec = factory.SubFactory(CodecFactory)
     video_extension = fuzzy.FuzzyChoice(models.VALID_VIDEO_FILE_EXTENSION_LIST)
-    ffmpeg_args = factory.List(FFMPEG_TEST_ARGS)
+    extra_ffmpeg_args = factory.List(FFMPEG_TEST_ARGS)
 
 
 class BaseVideoFileFactory(BaseModelFactory):
