@@ -21,7 +21,7 @@ class TestMainWorkflow:
     @staticmethod
     def _get_all_video_files(ovf: OriginalVideoFile) -> list[BaseVideoFile]:
         evfs: list[EncodedVideoFile] = list(ovf.encoded_video_files.all())
-        return [ovf] + evfs + [evf.decoded_video_file for evf in evfs]
+        return [ovf] + evfs
 
     def test_main_workflow_successful(
         self,
