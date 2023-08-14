@@ -260,7 +260,7 @@ class DecodedVideoFile(BaseVideoFile):
 
     def compute_comparison_metrics(self) -> None:
         logger.info(f"Computing comparison metrics for {self}")
-        cfrs = self.filter_results.filter(output="")
+        cfrs = self.filter_results.filter(value__isnull=True)
         if cfrs:
             for cfr in cfrs:
                 cfr.compute()

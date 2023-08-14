@@ -17,6 +17,7 @@ from video_coding.console.forms import (
     OriginalVideoFileCreateForm,
     OriginalVideoFileDetailsReadonlyForm,
 )
+from video_coding.console.graphs import VideoGraph
 from video_coding.entities.models import (
     ComparisonFilter,
     EncodedVideoFile,
@@ -88,6 +89,11 @@ class OriginalVideoFileDetailsView(View):
                 "evf_formset": evf_formset,
                 "evf_helper": EncodedVideoFileFormsetHelper(
                     extra_fields=comparison_filters_names,
+                ),
+                "graph": (
+                    VideoGraph(comparison_filters_names[0], evfs).to_html()
+                    if ovf.status==OriginalVideoFile.Status.DONE
+                    else ''
                 ),
             },
         )

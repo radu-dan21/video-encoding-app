@@ -42,5 +42,14 @@
 
     <hr>
 
+    <h2>Graphs</h2>
+    <div class="container">
+        <div class="row flex">
+            {{ graph|safe }}
+        </div>
+    </div>
+
+    <hr>
+
     <a class="btn btn-danger" href="{{ form.instance.id }}/delete" role="button">Delete</a>
 {% endblock %}

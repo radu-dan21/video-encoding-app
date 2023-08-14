@@ -23,4 +23,7 @@ def remove_file_tree(path: str, *args, **kwargs):
     if os.path.isdir(path):
         shutil.rmtree(path, ignore_errors=True)
     else:
-        os.remove(path)
+        try:
+            os.remove(path)
+        except FileNotFoundError:
+            pass

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import re
 
 from abc import abstractmethod
 
@@ -29,7 +30,9 @@ class InformationFilter(Filter):
 
 
 class ComparisonFilter(Filter):
-    ...
+    regex_for_value_extraction = models.CharField(
+        max_length=BaseModel.MAX_CHAR_FIELD_LEN,
+    )
 
 
 class FilterResults(BaseModel):
@@ -51,12 +54,13 @@ class FilterResults(BaseModel):
         logger.info(f"Computing filter {self}")
         ...
 
-    def call_ffmpeg(self, args: list[str]) -> str | None:
+    def call_ffmpeg(self, args: list[str], commit=True) -> str | None:
         self.compute_time, self.output = FFMPEG.call(
             args + self.FFMPEG_CMD_SUFFIX.split(" "),
         )
         self.compute_time = round(self.compute_time, 5)
-        self.save(update_fields=["compute_time", "output"])
+        if commit:
+            self.save(update_fields=["compute_time", "output"])
 
 
 class InformationFilterResult(FilterResults):
@@ -99,6 +103,8 @@ class ComparisonFilterResult(FilterResults):
         related_name="filter_results",
     )
 
+    value = models.FloatField(null=True)
+
     def compute(self) -> None:
         args: list[str] = [
             "-i",
@@ -107,3 +113,10 @@ class ComparisonFilterResult(FilterResults):
             f'"{self.reference_video.file_path}"',
         ] + self.video_filter.ffmpeg_args
         self.call_ffmpeg(args)
+
+    def call_ffmpeg(self, args: list[str], commit=True) -> str | None:
+        super().call_ffmpeg(args, commit=False)
+        self.value = float(
+            re.match(self.video_filter.regex_for_value_extraction, self.output)[1]
+        )
+        self.save()
