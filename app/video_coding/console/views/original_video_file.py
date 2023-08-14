@@ -92,8 +92,8 @@ class OriginalVideoFileDetailsView(View):
                 ),
                 "graph": (
                     VideoGraph(comparison_filters_names[0], evfs).to_html()
-                    if ovf.status==OriginalVideoFile.Status.DONE
-                    else ''
+                    if ovf.status == OriginalVideoFile.Status.DONE
+                    else ""
                 ),
             },
         )
