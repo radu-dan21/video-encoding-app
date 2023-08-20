@@ -84,11 +84,23 @@ class OriginalVideoFileDetailsView(View):
         ifr_formset = InformationFilterResultFormset(
             queryset=ovf.info_filter_results.all(),
         )
-        evfs = EncodedVideoFile.objects.filter(
-            original_video_file_id=ovf_id
-        ).select_related("video_encoding__codec")
+        evfs = (
+            EncodedVideoFile.objects.filter(original_video_file_id=ovf_id)
+            .select_related("decoded_video_file")
+            .prefetch_related(
+                Prefetch(
+                    "decoded_video_file__filter_results",
+                    to_attr="cfrs",
+                    queryset=(
+                        ComparisonFilterResult.objects.select_related(
+                            "video_filter"
+                        ).only("value", "video_filter__name")
+                    ),
+                ),
+            )
+        )
         evf_formset = EncodedVideoFileFormset(queryset=evfs)
-        comparison_filters = self._get_comparison_filters(ovf.cfrs)
+        comparison_filters = self._get_comparison_filters(evfs)
         graphs = []
         if ovf.status == OriginalVideoFile.Status.DONE:
             graphs = self._get_graphs(ovf_id)
@@ -109,19 +121,16 @@ class OriginalVideoFileDetailsView(View):
 
     @staticmethod
     def _get_comparison_filters(
-        cfrs: list[ComparisonFilterResult],
+        evfs: list[EncodedVideoFile],
     ) -> list[ComparisonFilter]:
-        comparison_filters = list({cfr.video_filter for cfr in cfrs})
-        return list(sorted(comparison_filters, key=lambda cf: cf.id))
+        cfs = {cfr.video_filter for cfr in evfs[0].decoded_video_file.cfrs}
+        return list(sorted(cfs, key=lambda cf: cf.id))
 
     @staticmethod
     def _get_graphs(ovf_id: int) -> list[str]:
         return [
-            EncodingTimeGraph.objects.get(original_video_file_id=ovf_id).to_html(),
-            *(
-                g.to_html()
-                for g in MetricGraph.objects.filter(original_video_file_id=ovf_id)
-            ),
+            EncodingTimeGraph.objects.get(original_video_file_id=ovf_id),
+            *MetricGraph.objects.filter(original_video_file_id=ovf_id),
         ]
 
 

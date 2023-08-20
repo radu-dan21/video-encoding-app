@@ -47,7 +47,7 @@
             {% for g in graphs %}
                 <div class="container">
                     <div class="row flex">
-                        {{ g|safe }}
+                        {{ g|load_graph|safe }}
                     </div>
                 </div>
             {% endfor %}

@@ -29,16 +29,13 @@ class EncodedVideoFileReadonlyForm(BaseReadonlyForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for cfr in self.instance.comparison_filters:
+        for cfr in self.instance.decoded_video_file.cfrs:
             name: str = cfr.video_filter.name
             self.extra_fields.append(name)
-            self._create_output_charfield(name, cfr.output)
+            self._create_output_charfield(name, str(cfr.value))
 
     def _create_output_charfield(self, name: str, output: str) -> None:
-        self.fields[name] = forms.CharField(
-            label=name,
-            widget=forms.Textarea(attrs={"rows": 5}),
-        )
+        self.fields[name] = forms.CharField(label=name)
         self.fields[name].initial = output
         self.fields[name].disabled = True
 

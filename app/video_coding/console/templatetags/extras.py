@@ -1,7 +1,7 @@
 from django import template
 from django.utils.safestring import mark_safe
 
-from video_coding.entities.models import OriginalVideoFile
+from video_coding.entities.models import BaseGraph, OriginalVideoFile
 
 
 register = template.Library()
@@ -62,3 +62,8 @@ def ovf_status_color(ovf: OriginalVideoFile, autoescape=True):
     }
     default_color: str = "#856404"
     return mark_safe(ovf_status_color_mapping.get(ovf.status, default_color))
+
+
+@register.filter(needs_autoescape=True)
+def load_graph(graph: BaseGraph, autoescape=True):
+    return graph.to_html()
