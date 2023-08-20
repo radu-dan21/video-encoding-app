@@ -203,7 +203,7 @@ class OriginalVideoFile(BaseVideoFile):
         for mn in reversed(metric_names):
             metric_graph_file_path = os.path.join(
                 self.parent_dir,
-                f"{mn.replace('', '_')}.html",
+                f"{mn.replace(' ', '_')}.html",
             )
             MetricGraph.objects.create(
                 original_video_file=self,
