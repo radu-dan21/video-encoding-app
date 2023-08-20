@@ -43,11 +43,19 @@
     <hr>
 
     <h2>Graphs</h2>
-    <div class="container">
-        <div class="row flex">
-            {{ graph|safe }}
-        </div>
-    </div>
+        {% if graphs %}
+            {% for g in graphs %}
+                <div class="container">
+                    <div class="row flex">
+                        {{ g|safe }}
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="alert alert-info" role="alert">
+                Graphs are not available yet!
+            </div>
+        {% endif %}
 
     <hr>
 

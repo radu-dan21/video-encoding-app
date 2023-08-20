@@ -1,7 +1,6 @@
-from itertools import chain
-
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.files.uploadedfile import UploadedFile
+from django.db.models import Prefetch
 from django.http import Http404
 from django.http.response import HttpResponse
 from django.shortcuts import render
@@ -17,13 +16,13 @@ from video_coding.console.forms import (
     OriginalVideoFileCreateForm,
     OriginalVideoFileDetailsReadonlyForm,
 )
-from video_coding.console.graphs import VideoGraph
 from video_coding.entities.models import (
     ComparisonFilter,
+    ComparisonFilterResult,
     EncodedVideoFile,
-    InformationFilterResult,
     OriginalVideoFile,
 )
+from video_coding.entities.models.graph import EncodingTimeGraph, MetricGraph
 from video_coding.tasks import run_ovf_workflow
 
 
@@ -61,24 +60,38 @@ class OriginalVideoFileDetailsView(View):
 
     @staticmethod
     def _get_or_404(ovf_id: int) -> OriginalVideoFile:
-        try:
-            return OriginalVideoFile.objects.get(id=ovf_id)
-        except OriginalVideoFile.DoesNotExist:
+        ovf = (
+            OriginalVideoFile.objects.filter(id=ovf_id)
+            .prefetch_related(
+                Prefetch(
+                    "comparison_filter_results",
+                    to_attr="cfrs",
+                    queryset=(
+                        ComparisonFilterResult.objects.select_related("video_filter")
+                    ),
+                ),
+            )
+            .first()
+        )
+        if not ovf:
             raise Http404
+        return ovf
 
     def get(self, request, *args, **kwargs):
-        ovf: OriginalVideoFile = self._get_or_404(ovf_id=kwargs.get("ovf_id"))
+        ovf_id: int = kwargs.get("ovf_id")
+        ovf: OriginalVideoFile = self._get_or_404(ovf_id=ovf_id)
         form = OriginalVideoFileDetailsReadonlyForm(instance=ovf)
-
         ifr_formset = InformationFilterResultFormset(
-            queryset=InformationFilterResult.objects.filter(video=ovf),
+            queryset=ovf.info_filter_results.all(),
         )
-
-        evfs = EncodedVideoFile.objects.filter(original_video_file=ovf)
+        evfs = EncodedVideoFile.objects.filter(
+            original_video_file_id=ovf_id
+        ).select_related("video_encoding__codec")
         evf_formset = EncodedVideoFileFormset(queryset=evfs)
-
-        comparison_filters_names: list[str] = self._get_comparison_filters_names(evfs)
-
+        comparison_filters = self._get_comparison_filters(ovf.cfrs)
+        graphs = []
+        if ovf.status == OriginalVideoFile.Status.DONE:
+            graphs = self._get_graphs(ovf_id)
         return render(
             request,
             self.template_name,
@@ -88,28 +101,28 @@ class OriginalVideoFileDetailsView(View):
                 "ifr_helper": InformationFilterResultFormsetHelper(),
                 "evf_formset": evf_formset,
                 "evf_helper": EncodedVideoFileFormsetHelper(
-                    extra_fields=comparison_filters_names,
+                    extra_fields=[cf.name for cf in comparison_filters],
                 ),
-                "graph": (
-                    VideoGraph(comparison_filters_names[0], evfs).to_html()
-                    if ovf.status == OriginalVideoFile.Status.DONE
-                    else ""
-                ),
+                "graphs": graphs,
             },
         )
 
     @staticmethod
-    def _get_comparison_filters_names(evfs: list[EncodedVideoFile]) -> list[str]:
-        cfrs: list[ComparisonFilter] = list(
-            chain.from_iterable([e.comparison_filters for e in evfs])
-        )
-        return list(
-            ComparisonFilter.objects.filter(
-                id__in={cfr.video_filter.id for cfr in cfrs}
-            ).values_list(
-                "name", flat=True
-            )  # used in order to preserve db ordering
-        )
+    def _get_comparison_filters(
+        cfrs: list[ComparisonFilterResult],
+    ) -> list[ComparisonFilter]:
+        comparison_filters = list({cfr.video_filter for cfr in cfrs})
+        return list(sorted(comparison_filters, key=lambda cf: cf.id))
+
+    @staticmethod
+    def _get_graphs(ovf_id: int) -> list[str]:
+        return [
+            EncodingTimeGraph.objects.get(original_video_file_id=ovf_id).to_html(),
+            *(
+                g.to_html()
+                for g in MetricGraph.objects.filter(original_video_file_id=ovf_id)
+            ),
+        ]
 
 
 class OriginalVideoFileDeleteView(SuccessMessageMixin, DeleteView):

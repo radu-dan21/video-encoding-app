@@ -8,6 +8,7 @@ from .filter import (
     InformationFilter,
     InformationFilterResult,
 )
+from .graph import EncodingTimeGraph, MetricGraph
 from .video_encoding import Codec, VideoEncoding
 from .video_file import (
     BaseVideoFile,

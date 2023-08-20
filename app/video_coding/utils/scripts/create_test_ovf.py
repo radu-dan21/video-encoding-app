@@ -8,22 +8,22 @@ from video_coding.workflows import PrepareMainWorkflow
 
 
 selected_encoding_names = [
-    "AV1 - preset 4 - CRF 17",
-    "HEVC - preset slow - CRF 17",
-    "AV1 - preset 5 - CRF 34",
-    "HEVC - preset slower - CRF 23",
-    "AV1 - preset 4 - CRF 5",
-    "HEVC - preset slow - CRF 10",
-    "AV1 - preset 4 - CRF 13",
-    "HEVC - preset slower - CRF 13",
-    "AV1 - preset 5 - CRF 21",
-    "HEVC - preset slower - CRF 20",
-    "AV1 - preset 4 - CRF 9",
-    "HEVC - preset slow - CRF 13",
-    "AV1 - preset 4 - CRF 1",
-    "HEVC - preset slow - CRF 6",
-    "AV1 - preset 5 - CRF 5",
-    "HEVC - preset slower - CRF 10",
+    "AV1 - preset 5 - CRF 63",
+    "HEVC - preset slow - CRF 44",
+    "AV1 - preset 5 - CRF 25",
+    "HEVC - preset slow - CRF 20",
+    "AV1 - preset 5 - CRF 38",
+    "HEVC - preset slow - CRF 27",
+    "AV1 - preset 5 - CRF 54",
+    "HEVC - preset slower - CRF 34",
+    "AV1 - preset 5 - CRF 46",
+    "HEVC - preset slow - CRF 30",
+    "AV1 - preset 4 - CRF 38",
+    "HEVC - preset slower - CRF 27",
+    "AV1 - preset 5 - CRF 50",
+    "HEVC - preset slow - CRF 34",
+    "AV1 - preset 4 - CRF 21",
+    "HEVC - preset slower - CRF 17",
 ]
 
 

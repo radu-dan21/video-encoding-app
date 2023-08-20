@@ -76,11 +76,9 @@ hevc: list[tuple[str, float, float]] = [
 ]
 
 
-av1_points: list[Point] = [Point(tpl[0], tpl[1], tpl[2]) for tpl in av1]
-hevc_points: list[Point] = [Point(tpl[0], tpl[1], tpl[2]) for tpl in hevc]
-
-
-def main(point_count: int) -> list[tuple[Point, Point]]:
+def get_closest(point_count: int) -> list[tuple[Point, Point]]:
+    av1_points: list[Point] = [Point(tpl[0], tpl[1], tpl[2]) for tpl in av1]
+    hevc_points: list[Point] = [Point(tpl[0], tpl[1], tpl[2]) for tpl in hevc]
     chosen_points: list[tuple[Point, Point]] = []
     while len(chosen_points) < point_count and av1_points:
         distances: list[int, int, float] = []

@@ -13,6 +13,8 @@ from django_jsonform.models.fields import JSONField
 from hurry.filesize import si, size
 
 from video_coding.entities.models.base import BaseModel
+from video_coding.entities.models.graph import EncodingTimeGraph, MetricGraph
+from video_coding.entities.models.utils import MetricsData
 from video_coding.entities.utils.decorators import ignore_errors
 from video_coding.handlers import vf_post_delete_hook, vf_post_save_hook
 from video_coding.tasks import remove_file_tree
@@ -157,6 +159,7 @@ class OriginalVideoFile(BaseVideoFile):
             super().run_workflow()
             self.compute_information_metrics()
             self.encode_video_files()
+            self.compute_graphs_and_bd_metrics()
             self.set_status(self.Status.DONE)
         except Exception as e:
             self.set_failed(str(e))
@@ -175,6 +178,42 @@ class OriginalVideoFile(BaseVideoFile):
             self.set_status(self.Status.INFO_METRICS)
             for ifr in ifrs:
                 ifr.compute()
+
+    def compute_graphs_and_bd_metrics(self) -> None:
+        self.set_status(self.Status.COMPARISON_METRICS)
+        md = MetricsData(self.id)
+        self.compute_graphs(md)
+        self.compute_bd_metrics(md)
+
+    def compute_graphs(self, metrics_data: MetricsData) -> None:
+        from video_coding.entities.models.filter import ComparisonFilter
+
+        enc_time_graph_file_path = os.path.join(self.parent_dir, "enc_time.html")
+        EncodingTimeGraph.objects.create(
+            original_video_file=self,
+            name=f"OVF {self.id} - encoding time",
+            file_path=enc_time_graph_file_path,
+        ).create_graph_file(metrics_data)
+
+        metric_names: list[str] = [
+            c
+            for c in metrics_data.data_frame.columns
+            if c not in MetricsData.COMMON_COLUMNS
+        ]
+        for mn in reversed(metric_names):
+            metric_graph_file_path = os.path.join(
+                self.parent_dir,
+                f"{mn.replace('', '_')}.html",
+            )
+            MetricGraph.objects.create(
+                original_video_file=self,
+                name=f"OVF {self.id} - {mn}",
+                video_filter=ComparisonFilter.objects.get(name=mn),
+                file_path=metric_graph_file_path,
+            ).create_graph_file(metrics_data)
+
+    def compute_bd_metrics(self, metrics_data: MetricsData) -> None:
+        ...
 
     def handle_file_copy(self, source_path: str) -> None:
         logger.info(f"Copying video from <{source_path}> to {self.parent_dir}!")
@@ -256,7 +295,6 @@ class DecodedVideoFile(BaseVideoFile):
         self.decode()
         super().run_workflow()
         self.compute_comparison_metrics()
-        remove_file_tree(self.file_path)
 
     def compute_comparison_metrics(self) -> None:
         logger.info(f"Computing comparison metrics for {self}")
