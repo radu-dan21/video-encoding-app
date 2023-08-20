@@ -134,12 +134,13 @@ def psnr() -> ComparisonFilter:
             "-filter_complex",
             "psnr",
         ],
+        regex_for_value_extraction=".+average:([^ ]+) .+",
     )
 
 
 @fixture
 def test_ovf() -> OriginalVideoFile:
-    ovf = OriginalVideoFileFactory.create(file_name="test.avi")
+    ovf = OriginalVideoFileFactory.create(file_name="test.mkv")
     shutil.copyfile(os.environ.get("TEST_OVF_PATH"), ovf.file_path)
     yield ovf
     shutil.rmtree(ovf.parent_dir)
