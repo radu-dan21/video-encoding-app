@@ -7,7 +7,8 @@ class MetricsData:
     COMMON_COLUMNS: list[str] = [
         "codec",
         "codec setting",
-        "bitrate (kpbs)" "log10 bitrate (kbps)",
+        "bitrate (kpbs)",
+        "log10 bitrate (kbps)",
         "encoding time (seconds)",
     ]
 
