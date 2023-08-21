@@ -31,6 +31,12 @@ class OriginalVideoFileDetailsReadonlyForm(BaseReadonlyForm):
             "error_message",
         ]
 
+    field_label_mapping = {
+        "bitrate": "Bitrate (kbps)",
+        "fps": "FPS",
+        "duration": "Duration (seconds)",
+    }
+
     properties: list[str] = [
         "codec",
         "size",

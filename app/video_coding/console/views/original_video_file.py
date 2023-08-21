@@ -1,3 +1,5 @@
+import math
+
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.files.uploadedfile import UploadedFile
 from django.db.models import Prefetch
@@ -65,7 +67,6 @@ class OriginalVideoFileDetailsView(View):
         ovf = (
             OriginalVideoFile.objects.filter(id=ovf_id)
             .prefetch_related(
-                "bd_metrics",
                 Prefetch(
                     "comparison_filter_results",
                     to_attr="cfrs",
@@ -107,7 +108,9 @@ class OriginalVideoFileDetailsView(View):
         graphs = []
         if not ovf.is_in_progress:
             graphs = self._get_graphs(ovf_id)
-        bd_metrics_formset = BDMetricFormset(queryset=ovf.bd_metrics.all())
+        bd_metrics_formset = BDMetricFormset(
+            queryset=ovf.bd_metrics.exclude(bd_rate=math.nan),
+        )
         return render(
             request,
             self.template_name,

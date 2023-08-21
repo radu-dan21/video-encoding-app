@@ -40,7 +40,7 @@ class EncodingTimeGraph(BaseGraph):
             metrics_data.data_frame,
             x="log10 bitrate (kbps)",
             y="encoding time (seconds)",
-            hover_data=["codec setting"],
+            hover_data=["bitrate (kbps)", "codec setting"],
             color="codec",
             symbol="codec",
             trendline="ols",
@@ -71,7 +71,7 @@ class MetricGraph(BaseGraph):
             metrics_data.data_frame,
             x="log10 bitrate (kbps)",
             y=self.video_filter.name,
-            hover_data=["codec setting"],
+            hover_data=["bitrate (kbps)", "codec setting"],
             color="codec",
             symbol="codec",
         )

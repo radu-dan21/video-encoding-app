@@ -15,6 +15,11 @@ class BDMetricReadonlyForm(BaseReadonlyForm):
             "bd_metric",
         ]
 
+    field_label_mapping = {
+        "bd_rate": "BD Rate (%)",
+        "bd_metric": "BD Metric",
+    }
+
 
 BDMetricFormset = forms.modelformset_factory(
     BDMetric,

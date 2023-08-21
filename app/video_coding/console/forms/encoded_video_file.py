@@ -32,7 +32,11 @@ class EncodedVideoFileReadonlyForm(BaseReadonlyForm):
         for cfr in self.instance.decoded_video_file.cfrs:
             name: str = cfr.video_filter.name
             self.extra_fields.append(name)
-            self._create_output_charfield(name, str(cfr.value))
+            value = cfr.value
+            self._create_output_charfield(
+                name,
+                str(value) if value is not None else "",
+            )
 
     def _create_output_charfield(self, name: str, output: str) -> None:
         self.fields[name] = forms.CharField(label=name)
