@@ -7,7 +7,7 @@ class MetricsData:
     COMMON_COLUMNS: list[str] = [
         "codec",
         "codec setting",
-        "bitrate (kpbs)",
+        "bitrate (kbps)",
         "log10 bitrate (kbps)",
         "encoding time (seconds)",
     ]
@@ -67,4 +67,15 @@ class MetricsData:
         return DataFrame(
             data=sorted(dvf_data_mapping.values(), key=lambda d: d[2]),
             columns=column_names,
+        )
+
+    def get_metric_column_names(self) -> list[str]:
+        return list(
+            reversed(
+                [
+                    c
+                    for c in self.data_frame.columns
+                    if c not in MetricsData.COMMON_COLUMNS
+                ]
+            )
         )

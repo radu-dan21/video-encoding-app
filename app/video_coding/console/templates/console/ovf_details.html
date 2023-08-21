@@ -59,5 +59,19 @@
 
     <hr>
 
+    <h2>BD Metrics</h2>
+
+    {% if bd_metrics_formset.total_form_count == 0 %}
+        <div class="alert alert-info" role="alert">
+            No BD Metrics available!
+        </div>
+    {% else %}
+        <div class="container">
+            {% crispy bd_metrics_formset bd_metrics_helper %}
+        </div>
+    {% endif %}
+
+    <hr>
+
     <a class="btn btn-danger" href="{{ form.instance.id }}/delete" role="button">Delete</a>
 {% endblock %}

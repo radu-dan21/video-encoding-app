@@ -23,7 +23,7 @@ class EncodedVideoFileReadonlyForm(BaseReadonlyForm):
     bitrate = forms.FloatField()
 
     field_label_mapping = {
-        "bitrate": "Bitrate (Mbps)",
+        "bitrate": "Bitrate (kbps)",
         "encoding_time": "Encoding time (seconds)",
     }
 

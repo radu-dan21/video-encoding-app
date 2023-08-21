@@ -1,6 +1,7 @@
 from django.contrib import admin
 
 from video_coding.entities.models import (
+    BDMetric,
     Codec,
     ComparisonFilter,
     ComparisonFilterResult,
@@ -11,6 +12,11 @@ from video_coding.entities.models import (
     OriginalVideoFile,
     VideoEncoding,
 )
+
+
+@admin.register(BDMetric)
+class BDMetricAdmin(admin.ModelAdmin):
+    pass
 
 
 @admin.register(Codec)

@@ -1,4 +1,5 @@
 from .base import BaseModel
+from .bd_metric import BDMetric
 from .choices import VALID_VIDEO_FILE_EXTENSION_LIST, VIDEO_FILE_NAME_REGEX
 from .filter import (
     ComparisonFilter,

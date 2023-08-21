@@ -1,3 +1,4 @@
+import itertools
 import logging
 import os
 import shutil
@@ -5,6 +6,9 @@ import shutil
 from abc import abstractmethod
 from fractions import Fraction
 
+import pandas
+
+from bjontegaard import bd_psnr, bd_rate
 from django.conf import settings
 from django.core.validators import RegexValidator
 from django.db import models
@@ -13,8 +17,10 @@ from django_jsonform.models.fields import JSONField
 from hurry.filesize import si, size
 
 from video_coding.entities.models.base import BaseModel
+from video_coding.entities.models.bd_metric import BDMetric
 from video_coding.entities.models.graph import EncodingTimeGraph, MetricGraph
 from video_coding.entities.models.utils import MetricsData
+from video_coding.entities.models.video_encoding import Codec
 from video_coding.entities.utils.decorators import ignore_errors
 from video_coding.handlers import vf_post_delete_hook, vf_post_save_hook
 from video_coding.tasks import remove_file_tree
@@ -144,6 +150,13 @@ class OriginalVideoFile(BaseVideoFile):
     def parent_dir(self) -> str:
         return os.path.join(PROCESSED_VIDEOS_PATH, f"{self.id}/")
 
+    @property
+    def is_in_progress(self) -> bool:
+        return self.status not in (
+            self.Status.DONE,
+            self.Status.FAILED,
+        )
+
     def set_status(self, status: Status.choices, commit=True) -> None:
         self.status = status
         if commit:
@@ -195,12 +208,7 @@ class OriginalVideoFile(BaseVideoFile):
             file_path=enc_time_graph_file_path,
         ).create_graph_file(metrics_data)
 
-        metric_names: list[str] = [
-            c
-            for c in metrics_data.data_frame.columns
-            if c not in MetricsData.COMMON_COLUMNS
-        ]
-        for mn in reversed(metric_names):
+        for mn in metrics_data.get_metric_column_names():
             metric_graph_file_path = os.path.join(
                 self.parent_dir,
                 f"{mn.replace(' ', '_')}.html",
@@ -213,7 +221,59 @@ class OriginalVideoFile(BaseVideoFile):
             ).create_graph_file(metrics_data)
 
     def compute_bd_metrics(self, metrics_data: MetricsData) -> None:
-        ...
+        from video_coding.entities.models.filter import ComparisonFilter
+
+        def prepare_values(v1_, v2_, metric_name_):
+            res = []
+            for v in (v1_, v2_):
+                done = False
+                while not done:
+                    done = True
+                    for i in range(1, len(v.index)):
+                        idx = v.index[i]
+                        prev_idx = v.index[i - 1]
+                        if v[metric_name_][idx] < v[metric_name_][prev_idx]:
+                            v = v.drop([idx])
+                            done = False
+                            break
+                res.append(v)
+            return res
+
+        df: pandas.DataFrame = metrics_data.data_frame
+
+        # preserve db ordering
+        codecs = list(Codec.objects.filter(name__in=set(df.codec)))
+        codec_data = {c: df[df.codec == c.name] for c in codecs}
+
+        metrics_column_names = metrics_data.get_metric_column_names()
+        metric_dict = ComparisonFilter.objects.in_bulk(
+            metrics_column_names,
+            field_name="name",
+        )
+
+        for c1, c2 in itertools.combinations(codec_data.keys(), r=2):
+            v1, v2 = (codec_data[c] for c in (c1, c2))
+            for metric_name in metrics_data.get_metric_column_names():
+                v1p, v2p = prepare_values(v1, v2, metric_name)
+                bd_metric_args = [
+                    getattr(v1p, "bitrate (kbps)"),
+                    getattr(v1p, metric_name),
+                    getattr(v2p, "bitrate (kbps)"),
+                    getattr(v2p, metric_name),
+                    "akima",
+                    False,
+                ]
+                bd_rate_ = bd_rate(*bd_metric_args)
+                bd_metric = bd_psnr(*bd_metric_args)
+                BDMetric.objects.create(
+                    name=f"OVF {self.id} - {c1.name} vs {c2.name} - {metric_name}",
+                    original_video_file=self,
+                    video_filter=metric_dict[metric_name],
+                    reference_codec=c1,
+                    test_codec=c2,
+                    bd_rate=bd_rate_,
+                    bd_metric=bd_metric,
+                )
 
     def handle_file_copy(self, source_path: str) -> None:
         logger.info(f"Copying video from <{source_path}> to {self.parent_dir}!")

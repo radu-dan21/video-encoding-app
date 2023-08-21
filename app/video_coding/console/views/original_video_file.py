@@ -9,6 +9,8 @@ from django.views import View
 from django.views.generic import DeleteView, FormView, ListView
 
 from video_coding.console.forms import (
+    BDMetricFormset,
+    BDMetricFormsetHelper,
     EncodedVideoFileFormset,
     EncodedVideoFileFormsetHelper,
     InformationFilterResultFormset,
@@ -63,6 +65,7 @@ class OriginalVideoFileDetailsView(View):
         ovf = (
             OriginalVideoFile.objects.filter(id=ovf_id)
             .prefetch_related(
+                "bd_metrics",
                 Prefetch(
                     "comparison_filter_results",
                     to_attr="cfrs",
@@ -102,8 +105,9 @@ class OriginalVideoFileDetailsView(View):
         evf_formset = EncodedVideoFileFormset(queryset=evfs)
         comparison_filters = self._get_comparison_filters(evfs)
         graphs = []
-        if ovf.status == OriginalVideoFile.Status.DONE:
+        if not ovf.is_in_progress:
             graphs = self._get_graphs(ovf_id)
+        bd_metrics_formset = BDMetricFormset(queryset=ovf.bd_metrics.all())
         return render(
             request,
             self.template_name,
@@ -116,6 +120,8 @@ class OriginalVideoFileDetailsView(View):
                     extra_fields=[cf.name for cf in comparison_filters],
                 ),
                 "graphs": graphs,
+                "bd_metrics_formset": bd_metrics_formset,
+                "bd_metrics_helper": BDMetricFormsetHelper(),
             },
         )
 
@@ -129,7 +135,7 @@ class OriginalVideoFileDetailsView(View):
     @staticmethod
     def _get_graphs(ovf_id: int) -> list[str]:
         return [
-            EncodingTimeGraph.objects.get(original_video_file_id=ovf_id),
+            *EncodingTimeGraph.objects.filter(original_video_file_id=ovf_id),
             *MetricGraph.objects.filter(original_video_file_id=ovf_id),
         ]
 
