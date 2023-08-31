@@ -18,4 +18,4 @@ Test command:
 
 In order to create a superuser for Django's admin site, use the following command and follow the instructions:
 
-    docker compose run --rm python manage.py createsuperuser
+    docker compose run --rm web python manage.py createsuperuser
