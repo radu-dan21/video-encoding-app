@@ -72,7 +72,6 @@ services:
 
   flower:
     image: mher/flower:1.2
-    container_name: flower
     env_file:
       - ./.env.dev
     environment:
