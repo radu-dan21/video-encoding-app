@@ -18,8 +18,12 @@ def forwards(apps, schema_editor):
         name="HEVC",
         ffmpeg_args=["-c:v", "libx265"],
     )
+    avc, _created = Codec.objects.get_or_create(
+        name="AVC",
+        ffmpeg_args=["-c:v", "libx264"],
+    )
 
-    create_video_encodings(apps, av1, hevc)
+    create_video_encodings(apps, av1, hevc, avc)
 
     InformationFilter.objects.get_or_create(
         name="SITI",
@@ -36,24 +40,32 @@ def forwards(apps, schema_editor):
     )
 
 
-def create_video_encodings(apps, av1, hevc):
+def create_video_encodings(apps, av1, hevc, avc):
     VideoEncoding = apps.get_model("entities", "VideoEncoding")
 
-    crf_sample_count = 15
     codec_settings = {
         'AV1': {
             'CODEC_OBJ': av1,
             'CRF_RANGE': (1, 63),
+            'CRF_SAMPLE_COUNT': 15,
             'PRESETS': ('4', '5'),
         },
         'HEVC': {
             'CODEC_OBJ': hevc,
             'CRF_RANGE': (0, 51),
+            'CRF_SAMPLE_COUNT': 15,
             'PRESETS': ('slower', 'slow'),
+        },
+        'AVC': {
+            'CODEC_OBJ': avc,
+            'CRF_RANGE': (10, 50),
+            'CRF_SAMPLE_COUNT': 4,
+            'PRESETS': ('slow', ),
         }
     }
 
     for encoder, encoder_params in codec_settings.items():
+        crf_sample_count = encoder_params['CRF_SAMPLE_COUNT']
         crf_range = encoder_params['CRF_RANGE']
         crf_list = []
         lowest, highest = crf_range[0], crf_range[1]
