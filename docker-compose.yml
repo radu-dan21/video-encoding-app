@@ -10,7 +10,8 @@ services:
     working_dir: /usr/src/app
     stdin_open: true
     tty: true
-    command: python manage.py runserver 0.0.0.0:8000
+    command: sh -c "python manage.py migrate &&
+                    python manage.py runserver 0.0.0.0:8000"
     volumes:
       - ./app/:/usr/src/app/
     ports:
