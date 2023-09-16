@@ -2,7 +2,6 @@
 omit =
     */migrations/*
     */urls.py
-    video_coding/asgi.py
     video_coding/celery.py
     video_coding/tasks.py
     video_coding/wsgi.py
