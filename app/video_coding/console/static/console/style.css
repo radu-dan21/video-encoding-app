@@ -55,12 +55,3 @@ div.content {
 .asteriskField {
     display: none;
 }
-
-/*
-.alert-fixed {
-    position: -webkit-sticky;
-    position: sticky;
-    top: 2px;
-    z-index: 1;
-}
-*/
