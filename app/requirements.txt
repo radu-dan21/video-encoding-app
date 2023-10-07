@@ -8,6 +8,5 @@ hurry.filesize==0.9
 ipython==8.12.0
 pandas==2.0.3
 plotly==5.15.0
-pre-commit==3.2
 psycopg2-binary==2.9.6
 statsmodels==0.14.0
