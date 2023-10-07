@@ -17,6 +17,11 @@ logger = logging.getLogger(__name__)
 
 
 class Filter(BaseModel):
+    """
+    Base class that defines the common behavior of
+    all types of video metrics used throughout the project
+    """
+
     class Meta:
         abstract = True
 
@@ -26,16 +31,31 @@ class Filter(BaseModel):
 
 
 class InformationFilter(Filter):
+    """
+    Represents a metric that provides information about a single video,
+    which can be used for video classification
+    """
+
     ...
 
 
 class ComparisonFilter(Filter):
+    """
+    Represents a metric that provides information about the difference in quality,
+    between an original video and its encoded variant
+    """
+
     regex_for_value_extraction = models.CharField(
         max_length=BaseModel.MAX_CHAR_FIELD_LEN,
     )
 
 
 class FilterResults(BaseModel):
+    """
+    Base class that defines the common behavior of
+    all types of metric results used throughout the project
+    """
+
     class Meta:
         abstract = True
 
@@ -64,6 +84,10 @@ class FilterResults(BaseModel):
 
 
 class InformationFilterResult(FilterResults):
+    """
+    Represents the result of an InformationFilter, for an OriginalVideoFile instance
+    """
+
     video_filter = models.ForeignKey(
         InformationFilter,
         on_delete=models.CASCADE,
@@ -85,6 +109,11 @@ class InformationFilterResult(FilterResults):
 
 
 class ComparisonFilterResult(FilterResults):
+    """
+    Represents the result of an ComparisonFilter, for an OriginalVideoFile instance and
+    one of its encoded variants, after it has been decoded
+    """
+
     video_filter = models.ForeignKey(
         ComparisonFilter,
         on_delete=models.CASCADE,

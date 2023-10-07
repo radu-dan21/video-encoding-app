@@ -8,6 +8,11 @@ from video_coding.entities.models.utils import MetricsData
 
 
 class BaseGraph(BaseModel):
+    """
+    Base class that defines the common behavior of
+    all types of graphs used throughout the project
+    """
+
     REL_PATH_TO_OVF: str = "graphs/"
 
     original_video_file = models.ForeignKey(
@@ -35,6 +40,11 @@ class BaseGraph(BaseModel):
 
 
 class EncodingTimeGraph(BaseGraph):
+    """
+    Represents the graph that illustrates the relationship between the
+    encoding time and bitrates of encoded videos, associated with an OriginalVideoFile
+    """
+
     def generate(self, metrics_data: MetricsData) -> str:
         figure = px.scatter(
             metrics_data.data_frame,
@@ -60,6 +70,13 @@ class EncodingTimeGraph(BaseGraph):
 
 
 class MetricGraph(BaseGraph):
+    """
+    Represents the graph that illustrates the relationship between the
+    bitrates and ComparisonFilterResults of encoded videos,
+    associated with an OriginalVideoFile
+    (1 MetricGraph for each ComparisonFilter selected for an OriginalVideoFile)
+    """
+
     video_filter = models.ForeignKey(
         "ComparisonFilter",
         on_delete=models.CASCADE,

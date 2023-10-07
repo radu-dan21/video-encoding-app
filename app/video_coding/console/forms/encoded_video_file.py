@@ -29,6 +29,8 @@ class EncodedVideoFileReadonlyForm(BaseReadonlyForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # for each ComparisonFilterResult,
+        # add a new form field that contains the quality score
         for cfr in self.instance.decoded_video_file.cfrs:
             name: str = cfr.video_filter.name
             self.extra_fields.append(name)

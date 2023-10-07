@@ -2,6 +2,10 @@ from django.db import models
 
 
 class BaseModel(models.Model):
+    """
+    Base class for all models used throughout the project
+    """
+
     MAX_CHAR_FIELD_LEN = 1999
 
     class Meta:

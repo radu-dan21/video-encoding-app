@@ -7,6 +7,10 @@ from video_coding.entities.models import BaseModel
 
 
 class BaseReadonlyForm(forms.ModelForm):
+    """
+    Base class used for read-only forms
+    """
+
     properties: list[str] = []
     field_label_mapping: dict[str, str] = dict()
 

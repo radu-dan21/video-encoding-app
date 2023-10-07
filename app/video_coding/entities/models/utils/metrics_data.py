@@ -4,6 +4,12 @@ from pandas import DataFrame
 
 
 class MetricsData:
+    """
+    Used for extracting data from an experiment, for the purpose of
+    computing BDMetric, EncodingTimeGraph and MetricGraph instances
+    """
+
+    # columns that do not depend on associated ComparisonFilter instances
     COMMON_COLUMNS: list[str] = [
         "codec",
         "codec setting",

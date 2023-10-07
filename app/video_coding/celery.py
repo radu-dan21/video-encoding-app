@@ -39,6 +39,10 @@ class TaskFormatter(logging.Formatter):
 
 
 class BaseTask(celery.Task):
+    """
+    Custom Celery base Task class used throughout the project
+    """
+
     autoretry_for = (TaskError,)
     default_retry_delay = timedelta(seconds=30).seconds
     retry_kwargs = {"max_retries": 3}

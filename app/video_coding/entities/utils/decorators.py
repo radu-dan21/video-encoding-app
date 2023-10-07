@@ -9,7 +9,9 @@ def ignore_errors(err_list: list[Exception] = None, default=None) -> Callable:
     Returns a default value when an "allowed" exception is raised
     :param err_list: list of allowed exceptions
     :param default: default value to be returned
+    :raises: Any type of exception that is not allowed
     """
+
     def decorator_ignore_errors(func) -> Callable:
         @wraps(func)
         def wrapper_ignore_errors(*args, **kwargs) -> Any:

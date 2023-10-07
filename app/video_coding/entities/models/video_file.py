@@ -29,6 +29,11 @@ PROCESSED_VIDEOS_PATH = settings.PROCESSED_VIDEOS_PATH
 
 
 class BaseVideoFile(BaseModel):
+    """
+    Abstract base class that defines the common behavior of
+    all types of video files used throughout the project
+    """
+
     class Meta:
         abstract = True
 
@@ -57,6 +62,10 @@ class BaseVideoFile(BaseModel):
 
     @abstractmethod
     def run_workflow(self) -> None:
+        """
+        Method that starts the processing workflow for a video file
+        Overriden in base classes for specific custom behaviour
+        """
         logger.info(f"Starting workflow for {self}")
         if not self.ffprobe_info:
             logger.info(f"Setting ffprobe info for {self}")
@@ -120,6 +129,10 @@ class BaseVideoFile(BaseModel):
 
 
 class OriginalVideoFile(BaseVideoFile):
+    """
+    Represents the video file that a user wants to process
+    """
+
     class Status(models.TextChoices):
         COPYING = "C", _("Copying video file")
         READY = "R", _("Ready")
@@ -174,12 +187,20 @@ class OriginalVideoFile(BaseVideoFile):
             raise e
 
     def encode_video_files(self) -> None:
+        """
+        Responsible for starting the encoding process
+        for each associated EncodedVideoFile
+        """
         logger.info(f"Encoding video files for {self}")
         self.set_status(self.Status.ENCODING)
         for evf in self.encoded_video_files.all():
             evf.run_workflow()
 
     def compute_information_metrics(self) -> None:
+        """
+        Responsible for starting the computation process
+        for each associated InformationFilterResult
+        """
         logger.info(f"Computing information metrics for {self}")
         ifrs = self.info_filter_results.filter(output="")
         if ifrs:
@@ -188,6 +209,10 @@ class OriginalVideoFile(BaseVideoFile):
                 ifr.compute()
 
     def compute_graphs_and_bd_metrics(self) -> None:
+        """
+        Responsible for creating associated
+        graphs and Bjøntegaard-Delta metrics
+        """
         self.set_status(self.Status.COMPARISON_METRICS)
         md = MetricsData(self.id)
         self.compute_graphs(md)
@@ -223,6 +248,11 @@ class OriginalVideoFile(BaseVideoFile):
         BDMetric.compute(self, metrics_data)
 
     def handle_file_copy(self, source_path: str) -> None:
+        """
+        Handles copying the associated video file to its correct location
+        Used when the user re-uses an existing video file and does not upload a new one
+        :param source_path: Path to the existing video file
+        """
         logger.info(f"Copying video from <{source_path}> to {self.parent_dir}!")
         self.set_status(self.Status.COPYING)
         try:
@@ -233,6 +263,11 @@ class OriginalVideoFile(BaseVideoFile):
 
 
 class EncodedVideoFile(BaseVideoFile):
+    """
+    Represents a video file that has been encoded,
+    with the purpose of analyzing encoder performance
+    """
+
     REL_PATH_TO_OVF: str = "encoded/"
 
     class Meta:
@@ -268,6 +303,10 @@ class EncodedVideoFile(BaseVideoFile):
         self.decoded_video_file.run_workflow()
 
     def encode(self) -> None:
+        """
+        Calls ffmpeg with the expected arguments,
+        starting the encoding process
+        """
         if self.encoding_time:
             return
         self.encoding_time = FFMPEG.call(
@@ -280,6 +319,12 @@ class EncodedVideoFile(BaseVideoFile):
 
 
 class DecodedVideoFile(BaseVideoFile):
+    """
+    Represents an EncodedVideoFIle that has been decoded,
+    with the purpose of analyzing the quality difference between
+    itself and its associated OriginalVideoFile
+    """
+
     REL_PATH_TO_OVF: str = "decoded/"
 
     encoded_video_file = models.OneToOneField(
@@ -304,6 +349,10 @@ class DecodedVideoFile(BaseVideoFile):
         self.compute_comparison_metrics()
 
     def compute_comparison_metrics(self) -> None:
+        """
+        Responsible for starting the computation process
+        for each associated ComparisonFilterResult
+        """
         logger.info(f"Computing comparison metrics for {self}")
         cfrs = self.filter_results.filter(value__isnull=True)
         if cfrs:
@@ -311,6 +360,10 @@ class DecodedVideoFile(BaseVideoFile):
                 cfr.compute()
 
     def decode(self) -> None:
+        """
+        Calls ffmpeg with the expected arguments,
+        starting the decoding process
+        """
         if not self.decoding_time:
             self.decoding_time = Decode.call(
                 input_file_path=self.encoded_video_file.file_path,

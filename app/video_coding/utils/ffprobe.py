@@ -7,6 +7,11 @@ from typing import Any
 class FFPROBE:
     @classmethod
     def call(cls, input_file_path: str) -> dict:
+        """
+        FFPROBE command wrapper
+        :param input_file_path: Path to the input video to be analyzed with ffprobe
+        :return: ffprobe response, partially truncated to match
+        """
         ffprobe_process: subprocess.CompletedProcess = subprocess.run(
             [
                 "ffprobe",

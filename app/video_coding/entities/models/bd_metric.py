@@ -10,6 +10,12 @@ from video_coding.entities.models.video_encoding import Codec
 
 
 class BDMetric(BaseModel):
+    """
+    Represents the results of computing Bjøntegaard-Delta metrics between 2 codecs
+    for the EncodedVideoFile objects associated with an OriginalVideoFile
+    and a ComparisonFilter
+    """
+
     original_video_file = models.ForeignKey(
         "OriginalVideoFile",
         on_delete=models.CASCADE,
@@ -34,9 +40,17 @@ class BDMetric(BaseModel):
 
     @classmethod
     def compute(cls, ovf, metrics_data):
+        """
+        Creates BDMetric instances for an OriginalVideoFile
+        (1 BDMetric instance per each Codec combination used, per each ComparisonFilter
+        :param ovf: OriginalVideoFile instance
+        :param metrics_data: MetricsData instance associated with the OriginalVideoFile
+        """
         from video_coding.entities.models.filter import ComparisonFilter
 
         def prepare_values(v1_, v2_, metric_name_):
+            # ensure that the bitrate-quality score graph is strictly increasing,
+            # for each metric
             res = []
             for v in (v1_, v2_):
                 done = False

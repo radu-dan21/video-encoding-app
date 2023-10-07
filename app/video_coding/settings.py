@@ -135,8 +135,12 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles/")
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# django-crispy-forms setup
+
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap4"
 CRISPY_TEMPLATE_PACK = "bootstrap4"
+
+# Video paths setup
 
 VIDEOS_PATH: str = os.environ.get("VIDEOS_PATH", "/usr/src/app/videos")
 PROCESSED_VIDEOS_PATH: str = os.path.join(
@@ -147,6 +151,8 @@ VIDEOS_FOR_PROCESSING_PATH: str = os.path.join(
     VIDEOS_PATH,
     os.environ.get("OVFS_FOR_PROCESSING_REL_PATH", "resources/"),
 )
+
+# Celery setup
 
 REDIS_HOST = os.environ.get("REDIS_HOST", "redis")
 REDIS_PORT = int(os.environ.get("REDIS_PORT", 6379))

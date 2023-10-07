@@ -11,6 +11,10 @@ from video_coding.entities.models import (
 
 
 class PrepareMainWorkflow:
+    """
+    Used for creating child video files and filter results for an OriginalVideoFile
+    """
+
     def __init__(
         self,
         ovf_id: int,
@@ -95,6 +99,11 @@ class PrepareMainWorkflow:
 
 
 def revert_back(ovf_id: int) -> None:
+    """
+    Deletes all child video files and filter results for an OriginalVideoFile
+    Only used for testing and debugging purposes
+    :param ovf_id: id of the OriginalVideoFile
+    """
     ovf = OriginalVideoFile.objects.get(id=ovf_id)
     ovf.status = OriginalVideoFile.Status.READY
     ovf.error_message = ""
