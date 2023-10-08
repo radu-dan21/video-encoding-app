@@ -2,11 +2,11 @@ from django.contrib import admin
 
 from video_coding.entities.models import (
     BDMetric,
-    Codec,
     ComparisonFilter,
     ComparisonFilterResult,
     DecodedVideoFile,
     EncodedVideoFile,
+    Encoder,
     EncoderSetting,
     EncodingTimeGraph,
     InformationFilter,
@@ -33,11 +33,6 @@ class BDMetricAdmin(admin.ModelAdmin):
         return super().get_form(request, obj, **kwargs)
 
 
-@admin.register(Codec)
-class CodecAdmin(admin.ModelAdmin):
-    pass
-
-
 @admin.register(ComparisonFilter)
 class ComparisonFilterAdmin(admin.ModelAdmin):
     pass
@@ -55,6 +50,11 @@ class DecodedVideoFileAdmin(admin.ModelAdmin):
 
 @admin.register(EncodedVideoFile)
 class EncodedVideoFileAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(Encoder)
+class EncoderAdmin(admin.ModelAdmin):
     pass
 
 

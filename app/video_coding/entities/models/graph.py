@@ -50,9 +50,9 @@ class EncodingTimeGraph(BaseGraph):
             metrics_data.data_frame,
             x="log10 bitrate (kbps)",
             y="encoding time (seconds)",
-            hover_data=["bitrate (kbps)", "codec setting"],
-            color="codec",
-            symbol="codec",
+            hover_data=["bitrate (kbps)", "encoder setting"],
+            color="encoder",
+            symbol="encoder",
             trendline="ols",
         )
         figure.update_layout(
@@ -88,9 +88,9 @@ class MetricGraph(BaseGraph):
             metrics_data.data_frame,
             x="log10 bitrate (kbps)",
             y=self.comparison_filter.name,
-            hover_data=["bitrate (kbps)", "codec setting"],
-            color="codec",
-            symbol="codec",
+            hover_data=["bitrate (kbps)", "encoder setting"],
+            color="encoder",
+            symbol="encoder",
         )
         figure.update_layout(
             height=500,

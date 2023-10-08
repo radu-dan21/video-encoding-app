@@ -4,17 +4,17 @@ import shutil
 from pytest import fixture
 
 from tests.factories import (
-    CodecFactory,
     ComparisonFilterFactory,
     DecodedVideoFileFactory,
+    EncoderFactory,
     EncoderSettingFactory,
     InformationFilterFactory,
     OriginalVideoFileFactory,
 )
 from video_coding.entities.models import (
-    Codec,
     ComparisonFilter,
     DecodedVideoFile,
+    Encoder,
     EncoderSetting,
     InformationFilter,
     OriginalVideoFile,
@@ -80,36 +80,36 @@ def _prepare_main_workflow(
 
 
 @fixture
-def av1_codec() -> Codec:
-    return CodecFactory.create(
+def av1_encoder() -> Encoder:
+    return EncoderFactory.create(
         name="AV1",
         ffmpeg_args=["-c:v", "libsvtav1"],
     )
 
 
 @fixture
-def hevc_codec() -> Codec:
-    return CodecFactory.create(
+def hevc_encoder() -> Encoder:
+    return EncoderFactory.create(
         name="HEVC",
         ffmpeg_args=["-c:v", "libx265"],
     )
 
 
 @fixture
-def av1(av1_codec) -> EncoderSetting:
+def av1(av1_encoder) -> EncoderSetting:
     return EncoderSettingFactory.create(
         name="AV1",
-        codec=av1_codec,
+        encoder=av1_encoder,
         extra_ffmpeg_args=["-crf", "30"],
         video_extension="mkv",
     )
 
 
 @fixture
-def hevc(hevc_codec) -> EncoderSetting:
+def hevc(hevc_encoder) -> EncoderSetting:
     return EncoderSettingFactory.create(
         name="HEVC",
-        codec=hevc_codec,
+        encoder=hevc_encoder,
         extra_ffmpeg_args=["-crf", "30"],
         video_extension="mkv",
     )

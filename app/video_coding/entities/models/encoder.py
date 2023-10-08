@@ -5,7 +5,7 @@ from video_coding.entities.models.base import BaseModel
 from video_coding.entities.models.choices import VALID_VIDEO_FILE_CHOICES_LIST
 
 
-class Codec(BaseModel):
+class Encoder(BaseModel):
     """
     Represents a software encoder
     """
@@ -21,8 +21,8 @@ class EncoderSetting(BaseModel):
     Used for encoding original video files
     """
 
-    codec = models.ForeignKey(
-        Codec,
+    encoder = models.ForeignKey(
+        Encoder,
         on_delete=models.CASCADE,
         related_name="settings",
     )
@@ -33,7 +33,7 @@ class EncoderSetting(BaseModel):
 
     @property
     def ffmpeg_args(self) -> list[str]:
-        return self.codec.ffmpeg_args + self.extra_ffmpeg_args
+        return self.encoder.ffmpeg_args + self.extra_ffmpeg_args
 
     # The extension that the encoded video file will have
     # If blank, the extension of the original video file will be used

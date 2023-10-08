@@ -11,8 +11,8 @@ class MetricsData:
 
     # columns that do not depend on associated ComparisonFilter instances
     COMMON_COLUMNS: list[str] = [
-        "codec",
-        "codec setting",
+        "encoder",
+        "encoder setting",
         "bitrate (kbps)",
         "log10 bitrate (kbps)",
         "encoding time (seconds)",
@@ -28,14 +28,14 @@ class MetricsData:
 
         evfs = (
             EncodedVideoFile.objects.select_related(
-                "encoder_setting__codec", "decoded_video_file"
+                "encoder_setting__encoder", "decoded_video_file"
             )
             .only(
                 "encoding_time",
                 "ffprobe_info",
                 "decoded_video_file__id",
                 "encoder_setting__name",
-                "encoder_setting__codec__name",
+                "encoder_setting__encoder__name",
             )
             .filter(original_video_file_id=self.ovf_id)
         )
@@ -58,7 +58,7 @@ class MetricsData:
 
         dvf_data_mapping: dict[int, list] = {
             e.decoded_video_file.id: [
-                e.encoder_setting.codec.name,
+                e.encoder_setting.encoder.name,
                 e.encoder_setting.name,
                 e.bitrate,
                 math.log(e.bitrate),

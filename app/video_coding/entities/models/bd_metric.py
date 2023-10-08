@@ -6,12 +6,12 @@ from bjontegaard import bd_psnr, bd_rate
 from django.db import models
 
 from video_coding.entities.models.base import BaseModel
-from video_coding.entities.models.encoder_setting import Codec
+from video_coding.entities.models.encoder import Encoder
 
 
 class BDMetric(BaseModel):
     """
-    Represents the results of computing Bjøntegaard-Delta metrics between 2 codecs
+    Represents the results of computing Bjøntegaard-Delta metrics between 2 encoders
     for the EncodedVideoFile objects associated with an OriginalVideoFile
     and a ComparisonFilter
     """
@@ -25,13 +25,13 @@ class BDMetric(BaseModel):
         "ComparisonFilter",
         on_delete=models.CASCADE,
     )
-    reference_codec = models.ForeignKey(
-        "Codec",
+    reference_encoder = models.ForeignKey(
+        "Encoder",
         on_delete=models.CASCADE,
         related_name="reference_metrics",
     )
-    test_codec = models.ForeignKey(
-        "Codec",
+    test_encoder = models.ForeignKey(
+        "Encoder",
         on_delete=models.CASCADE,
         related_name="test_metrics",
     )
@@ -42,7 +42,7 @@ class BDMetric(BaseModel):
     def compute(cls, ovf, metrics_data):
         """
         Creates BDMetric instances for an OriginalVideoFile
-        (1 BDMetric instance per each Codec combination used, per each ComparisonFilter
+        (1 BDMetric instance per each Encoder combination, per each ComparisonFilter)
         :param ovf: OriginalVideoFile instance
         :param metrics_data: MetricsData instance associated with the OriginalVideoFile
         """
@@ -69,8 +69,8 @@ class BDMetric(BaseModel):
         df: pandas.DataFrame = metrics_data.data_frame
 
         # preserve db ordering
-        codecs = list(Codec.objects.filter(name__in=set(df.codec)))
-        codec_data = {c: df[df.codec == c.name] for c in codecs}
+        encoders = list(Encoder.objects.filter(name__in=set(df.encoder)))
+        encoder_data = {e: df[df.encoder == e.name] for e in encoders}
 
         metrics_column_names = metrics_data.get_metric_column_names()
         metric_dict = ComparisonFilter.objects.in_bulk(
@@ -78,8 +78,8 @@ class BDMetric(BaseModel):
             field_name="name",
         )
 
-        for c1, c2 in itertools.combinations(codec_data.keys(), r=2):
-            v1, v2 = (codec_data[c] for c in (c1, c2))
+        for c1, c2 in itertools.combinations(encoder_data.keys(), r=2):
+            v1, v2 = (encoder_data[c] for c in (c1, c2))
             for metric_name in metrics_data.get_metric_column_names():
                 v1p, v2p = prepare_values(v1, v2, metric_name)
                 bd_metric_args = [
@@ -96,8 +96,8 @@ class BDMetric(BaseModel):
                     name=f"OVF {ovf.id} - {c1.name} vs {c2.name} - {metric_name}",
                     original_video_file=ovf,
                     comparison_filter=metric_dict[metric_name],
-                    reference_codec=c1,
-                    test_codec=c2,
+                    reference_encoder=c1,
+                    test_encoder=c2,
                     bd_rate=bd_rate_,
                     bd_metric=bd_metric,
                 )

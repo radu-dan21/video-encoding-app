@@ -8,8 +8,8 @@ class BDMetricReadonlyForm(BaseReadonlyForm):
     class Meta:
         model = BDMetric
         fields = [
-            "reference_codec",
-            "test_codec",
+            "reference_encoder",
+            "test_encoder",
             "comparison_filter",
             "bd_rate",
             "bd_metric",
