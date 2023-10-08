@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='comparisonfilter',
             name='regex_for_value_extraction',
-            field=models.CharField(default='.+average:([^ ]+) .+', max_length=1999),
+            field=models.CharField(default='.+average:(?P<value>[^ ]+) .+', max_length=1999),
             preserve_default=False,
         ),
         migrations.AddField(

@@ -27,6 +27,11 @@ class Filter(BaseModel):
 
     ffmpeg_args = ArrayField(
         models.CharField(max_length=BaseModel.MAX_CHAR_FIELD_LEN),
+        help_text="Arguments that will be passed to ffmpeg for metric computation.",
+    )
+    description = models.TextField(
+        null=False,
+        blank=True,
     )
 
 
@@ -47,6 +52,11 @@ class ComparisonFilter(Filter):
 
     regex_for_value_extraction = models.CharField(
         max_length=BaseModel.MAX_CHAR_FIELD_LEN,
+        help_text=(
+            "Regular expression that will be used for extracting the quality "
+            "score (float) from ffmpeg's output. Must include a capture group with "
+            "the name 'value'."
+        ),
     )
 
 
@@ -145,7 +155,6 @@ class ComparisonFilterResult(FilterResults):
 
     def call_ffmpeg(self, args: list[str], commit=True) -> str | None:
         super().call_ffmpeg(args, commit=False)
-        self.value = float(
-            re.match(self.video_filter.regex_for_value_extraction, self.output)[1]
-        )
+        match = re.search(self.video_filter.regex_for_value_extraction, self.output)
+        self.value = float(match.group("value"))
         self.save()

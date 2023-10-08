@@ -28,15 +28,21 @@ def forwards(apps, schema_editor):
     InformationFilter.objects.get_or_create(
         name="SITI",
         ffmpeg_args=["-vf", "siti=print_summary=1"],
+        description=(
+            "SI (Spatial information) -> average level of detail in each video frame.\n"
+            "TI (Temporal information) -> the average level of detail change between 2 consecutive frames.\n"
+        ),
     )
 
     ComparisonFilter.objects.get_or_create(
         name="PSNR",
         ffmpeg_args=["-filter_complex", "psnr"],
+        description="Peak signal-to-noise ratio.",
     )
     ComparisonFilter.objects.get_or_create(
         name="VMAF",
         ffmpeg_args=["-lavfi", "libvmaf"],
+        description="Video Multi-method Assessment Fusion.",
     )
 
 

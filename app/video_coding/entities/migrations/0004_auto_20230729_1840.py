@@ -15,7 +15,7 @@ def forwards(apps, schema_editor):
         _vmaf = ComparisonFilter.objects.create(
             name="VMAF",
             ffmpeg_args=["-lavfi", "libvmaf"],
-            regex_for_value_extraction=r'.*VMAF score: ([0-9.]+).*',
+            regex_for_value_extraction=r'.*VMAF score: (?P<value>[0-9.]+).*',
         )
 
 

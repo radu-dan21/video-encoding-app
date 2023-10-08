@@ -134,7 +134,7 @@ def psnr() -> ComparisonFilter:
             "-filter_complex",
             "psnr",
         ],
-        regex_for_value_extraction=".+average:([^ ]+) .+",
+        regex_for_value_extraction=".+average:(?P<value>[^ ]+) .+",
     )
 
 
