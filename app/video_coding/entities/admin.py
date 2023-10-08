@@ -7,8 +7,10 @@ from video_coding.entities.models import (
     ComparisonFilterResult,
     DecodedVideoFile,
     EncodedVideoFile,
+    EncodingTimeGraph,
     InformationFilter,
     InformationFilterResult,
+    MetricGraph,
     OriginalVideoFile,
     VideoEncoding,
 )
@@ -41,6 +43,16 @@ class DecodedVideoFileAdmin(admin.ModelAdmin):
 
 @admin.register(EncodedVideoFile)
 class EncodedVideoFileAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(EncodingTimeGraph)
+class EncodingTimeGraphAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(MetricGraph)
+class MetricGraphAdmin(admin.ModelAdmin):
     pass
 
 
