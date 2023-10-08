@@ -7,17 +7,17 @@ from tests.factories import (
     CodecFactory,
     ComparisonFilterFactory,
     DecodedVideoFileFactory,
+    EncoderSettingFactory,
     InformationFilterFactory,
     OriginalVideoFileFactory,
-    VideoEncodingFactory,
 )
 from video_coding.entities.models import (
     Codec,
     ComparisonFilter,
     DecodedVideoFile,
+    EncoderSetting,
     InformationFilter,
     OriginalVideoFile,
-    VideoEncoding,
 )
 from video_coding.workflows import PrepareMainWorkflow
 
@@ -46,8 +46,8 @@ def dvf() -> DecodedVideoFile:
 
 
 @fixture
-def encodings() -> list[VideoEncoding]:
-    return VideoEncodingFactory.create_batch(2)
+def encoder_settings() -> list[EncoderSetting]:
+    return EncoderSettingFactory.create_batch(2)
 
 
 @fixture
@@ -67,7 +67,7 @@ def prepare_main_workflow() -> callable:
 
 def _prepare_main_workflow(
     ovf: OriginalVideoFile,
-    encodings: list[VideoEncoding],
+    encodings: list[EncoderSetting],
     info_filters: list[InformationFilter],
     comp_filters: list[ComparisonFilter],
 ) -> None:
@@ -96,8 +96,8 @@ def hevc_codec() -> Codec:
 
 
 @fixture
-def av1(av1_codec) -> VideoEncoding:
-    return VideoEncodingFactory.create(
+def av1(av1_codec) -> EncoderSetting:
+    return EncoderSettingFactory.create(
         name="AV1",
         codec=av1_codec,
         extra_ffmpeg_args=["-crf", "30"],
@@ -106,8 +106,8 @@ def av1(av1_codec) -> VideoEncoding:
 
 
 @fixture
-def hevc(hevc_codec) -> VideoEncoding:
-    return VideoEncodingFactory.create(
+def hevc(hevc_codec) -> EncoderSetting:
+    return EncoderSettingFactory.create(
         name="HEVC",
         codec=hevc_codec,
         extra_ffmpeg_args=["-crf", "30"],

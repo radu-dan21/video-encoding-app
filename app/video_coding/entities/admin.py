@@ -7,12 +7,12 @@ from video_coding.entities.models import (
     ComparisonFilterResult,
     DecodedVideoFile,
     EncodedVideoFile,
+    EncoderSetting,
     EncodingTimeGraph,
     InformationFilter,
     InformationFilterResult,
     MetricGraph,
     OriginalVideoFile,
-    VideoEncoding,
 )
 
 
@@ -58,6 +58,11 @@ class EncodedVideoFileAdmin(admin.ModelAdmin):
     pass
 
 
+@admin.register(EncoderSetting)
+class EncoderSettingAdmin(admin.ModelAdmin):
+    pass
+
+
 @admin.register(EncodingTimeGraph)
 class EncodingTimeGraphAdmin(admin.ModelAdmin):
     pass
@@ -80,9 +85,4 @@ class InformationFilterResultsAdmin(admin.ModelAdmin):
 
 @admin.register(OriginalVideoFile)
 class OriginalVideoFileAdmin(admin.ModelAdmin):
-    pass
-
-
-@admin.register(VideoEncoding)
-class VideoEncodingAdmin(admin.ModelAdmin):
     pass

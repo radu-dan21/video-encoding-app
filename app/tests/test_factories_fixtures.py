@@ -1,13 +1,13 @@
 import pytest
 
-from tests.factories import VideoEncodingFactory
-from video_coding.entities.models import DecodedVideoFile, VideoEncoding
+from tests.factories import EncoderSettingFactory
+from video_coding.entities.models import DecodedVideoFile, EncoderSetting
 
 
 @pytest.mark.django_db
-def test_video_encoding_factory():
-    VideoEncodingFactory.create()
-    assert VideoEncoding.objects.count() == 1
+def test_encoder_setting_factory():
+    EncoderSettingFactory.create()
+    assert EncoderSetting.objects.count() == 1
 
 
 @pytest.mark.django_db

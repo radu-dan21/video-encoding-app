@@ -8,10 +8,10 @@ from video_coding.entities.models import (
     ComparisonFilterResult,
     DecodedVideoFile,
     EncodedVideoFile,
+    EncoderSetting,
     InformationFilter,
     InformationFilterResult,
     OriginalVideoFile,
-    VideoEncoding,
 )
 from video_coding.workflows import revert_back
 
@@ -26,8 +26,8 @@ class TestMainWorkflow:
     def test_main_workflow_successful(
         self,
         test_ovf: OriginalVideoFile,
-        av1: VideoEncoding,
-        hevc: VideoEncoding,
+        av1: EncoderSetting,
+        hevc: EncoderSetting,
         siti: InformationFilter,
         psnr: ComparisonFilter,
         prepare_main_workflow: callable,
@@ -69,8 +69,8 @@ class TestMainWorkflow:
     def test_main_workflow_fails(
         self,
         test_ovf: OriginalVideoFile,
-        av1: VideoEncoding,
-        hevc: VideoEncoding,
+        av1: EncoderSetting,
+        hevc: EncoderSetting,
         siti: InformationFilter,
         psnr: ComparisonFilter,
         prepare_main_workflow: callable,

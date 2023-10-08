@@ -14,9 +14,9 @@ from video_coding.entities.models import (
     VALID_VIDEO_FILE_EXTENSION_LIST,
     VIDEO_FILE_NAME_REGEX,
     ComparisonFilter,
+    EncoderSetting,
     InformationFilter,
     OriginalVideoFile,
-    VideoEncoding,
 )
 from video_coding.workflows import PrepareMainWorkflow
 
@@ -88,9 +88,9 @@ class OriginalVideoFileCreateForm(forms.Form):
         help_text="Upload a video from your computer.",
     )
     encoder_settings = ModelMultipleChoiceField(
-        model=VideoEncoding,
+        model=EncoderSetting,
         required=True,
-        error_messages={"required": "At least 1 video encoding must be selected!"},
+        error_messages={"required": "At least 1 encoder setting must be selected!"},
         help_text="For each chosen setting, one encoded video will be generated.",
     )
     information_filters = ModelMultipleChoiceField(

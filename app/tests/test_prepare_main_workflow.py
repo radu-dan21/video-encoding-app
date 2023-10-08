@@ -7,10 +7,10 @@ from video_coding.entities.models import (
     ComparisonFilterResult,
     DecodedVideoFile,
     EncodedVideoFile,
+    EncoderSetting,
     InformationFilter,
     InformationFilterResult,
     OriginalVideoFile,
-    VideoEncoding,
 )
 from video_coding.workflows import revert_back
 
@@ -20,22 +20,22 @@ class TestPrepareMainWorkflow:
     def test_prepare_main_workflow(
         self,
         ovf: OriginalVideoFile,
-        encodings: list[VideoEncoding],
+        encoder_settings: list[EncoderSetting],
         info_filter: InformationFilter,
         comp_filter: ComparisonFilter,
         prepare_main_workflow: callable,
     ):
-        prepare_main_workflow(ovf, encodings, [info_filter], [comp_filter])
+        prepare_main_workflow(ovf, encoder_settings, [info_filter], [comp_filter])
         ovf.refresh_from_db()
 
         evfs: list[EncodedVideoFile] = list(ovf.encoded_video_files.all())
-        assert len(evfs) == len(encodings)
+        assert len(evfs) == len(encoder_settings)
 
         dvfs: list[DecodedVideoFile] = [evf.decoded_video_file for evf in evfs]
         assert not any(dvf is None for dvf in dvfs)
 
         assert ovf.info_filter_results.count() == 1
-        assert ovf.comparison_filter_results.count() == len(encodings)
+        assert ovf.comparison_filter_results.count() == len(encoder_settings)
 
         assert all(
             os.path.exists(parent_dir)
@@ -45,12 +45,12 @@ class TestPrepareMainWorkflow:
     def test_revert_back(
         self,
         ovf: OriginalVideoFile,
-        encodings: list[VideoEncoding],
+        encoder_settings: list[EncoderSetting],
         info_filter: InformationFilter,
         comp_filter: ComparisonFilter,
         prepare_main_workflow: callable,
     ):
-        prepare_main_workflow(ovf, encodings, [info_filter], [comp_filter])
+        prepare_main_workflow(ovf, encoder_settings, [info_filter], [comp_filter])
         ovf.status = OriginalVideoFile.Status.FAILED
         ovf.save(update_fields=["status"])
 

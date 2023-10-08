@@ -38,7 +38,7 @@ Manually run pre-commit hooks for linting and auto-formatting code:
 In order to start a new video encoding experiment or examine previous results, navigate at http://localhost:8000/console/home.
 
 By default, the app offers support for a few software encoders and metrics, but it can work with any encoders and metrics that ffmpeg supports.
-The apps functionality can be extended by creating new `Codec`, `VideoEncoding`, `InformationFilter`, and `ComparisonFilter` instances in Django's admin site (http://localhost:8000/admin).
+The apps functionality can be extended by creating new `Codec`, `EncoderSetting`, `InformationFilter`, and `ComparisonFilter` instances in Django's admin site (http://localhost:8000/admin).
 
 ---
 

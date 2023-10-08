@@ -16,6 +16,7 @@ class BDMetricReadonlyForm(BaseReadonlyForm):
         ]
 
     field_label_mapping = {
+        "comparison_filter": "Quality metric",
         "bd_rate": "BD Rate (%)",
     }
 

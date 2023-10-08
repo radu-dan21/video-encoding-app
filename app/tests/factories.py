@@ -19,9 +19,9 @@ class CodecFactory(BaseModelFactory):
     ffmpeg_args = factory.List(FFMPEG_TEST_ARGS)
 
 
-class VideoEncodingFactory(BaseModelFactory):
+class EncoderSettingFactory(BaseModelFactory):
     class Meta:
-        model = models.VideoEncoding
+        model = models.EncoderSetting
 
     codec = factory.SubFactory(CodecFactory)
     video_extension = fuzzy.FuzzyChoice(models.VALID_VIDEO_FILE_EXTENSION_LIST)
@@ -42,7 +42,7 @@ class EncodedVideoFileFactory(BaseVideoFileFactory):
         model = models.EncodedVideoFile
 
     original_video_file = factory.SubFactory(OriginalVideoFileFactory)
-    video_encoding = factory.SubFactory(VideoEncodingFactory)
+    encoder_setting = factory.SubFactory(EncoderSettingFactory)
 
 
 class DecodedVideoFileFactory(BaseVideoFileFactory):

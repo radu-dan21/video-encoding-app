@@ -272,7 +272,7 @@ class EncodedVideoFile(BaseVideoFile):
     REL_PATH_TO_OVF: str = "encoded/"
 
     class Meta:
-        unique_together = ("original_video_file", "video_encoding")
+        unique_together = ("original_video_file", "encoder_setting")
 
     original_video_file = models.ForeignKey(
         OriginalVideoFile,
@@ -280,8 +280,8 @@ class EncodedVideoFile(BaseVideoFile):
         related_name="encoded_video_files",
     )
 
-    video_encoding = models.ForeignKey(
-        "VideoEncoding",
+    encoder_setting = models.ForeignKey(
+        "EncoderSetting",
         on_delete=models.CASCADE,
         related_name="encoded_video_files",
     )
@@ -312,7 +312,7 @@ class EncodedVideoFile(BaseVideoFile):
             return
         self.encoding_time = FFMPEG.call(
             ["-y", "-i", f'"{self.original_video_file.file_path}"']
-            + self.video_encoding.ffmpeg_args
+            + self.encoder_setting.ffmpeg_args
             + [self.file_path]
         )[0]
         self.encoding_time = round(self.encoding_time, 5)

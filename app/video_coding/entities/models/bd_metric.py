@@ -6,7 +6,7 @@ from bjontegaard import bd_psnr, bd_rate
 from django.db import models
 
 from video_coding.entities.models.base import BaseModel
-from video_coding.entities.models.video_encoding import Codec
+from video_coding.entities.models.encoder_setting import Codec
 
 
 class BDMetric(BaseModel):

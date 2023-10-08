@@ -8,7 +8,7 @@ class EncodedVideoFileReadonlyForm(BaseReadonlyForm):
     class Meta:
         model = EncodedVideoFile
         fields = [
-            "video_encoding",
+            "encoder_setting",
             "encoding_time",
         ]
 

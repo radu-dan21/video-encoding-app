@@ -15,7 +15,7 @@ class Codec(BaseModel):
     )
 
 
-class VideoEncoding(BaseModel):
+class EncoderSetting(BaseModel):
     """
     Represents a specific setting of a software encoder
     Used for encoding original video files

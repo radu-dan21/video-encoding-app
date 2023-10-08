@@ -3,10 +3,10 @@ from video_coding.entities.models import (
     ComparisonFilterResult,
     DecodedVideoFile,
     EncodedVideoFile,
+    EncoderSetting,
     InformationFilter,
     InformationFilterResult,
     OriginalVideoFile,
-    VideoEncoding,
 )
 
 
@@ -23,7 +23,7 @@ class PrepareMainWorkflow:
         comparison_filter_ids: list[int],
     ):
         self.ovf = OriginalVideoFile.objects.get(id=ovf_id)
-        self.encodings = VideoEncoding.objects.filter(id__in=encoding_ids)
+        self.encoder_settings = EncoderSetting.objects.filter(id__in=encoding_ids)
         self.info_filters = InformationFilter.objects.filter(id__in=info_filter_ids)
         self.comparison_filters = ComparisonFilter.objects.filter(
             id__in=comparison_filter_ids,
@@ -38,7 +38,7 @@ class PrepareMainWorkflow:
         self.create_comparison_filter_results(decoded_video_files)
 
     def create_encoded_video_files(self) -> list[EncodedVideoFile]:
-        def _get_evf_extension(enc_: VideoEncoding) -> str:
+        def _get_evf_extension(enc_: EncoderSetting) -> str:
             enc_ext: str = enc_.video_extension
             return (
                 enc_ext
@@ -47,7 +47,7 @@ class PrepareMainWorkflow:
             ).strip(" .")
 
         encoded_video_files: list[EncodedVideoFile] = []
-        for enc in self.encodings:
+        for enc in self.encoder_settings:
             evf_extension: str = _get_evf_extension(enc)
             name: str = f"evf_{enc.name}_ovf_{self.ovf.id}"
             encoded_video_files.append(
@@ -55,7 +55,7 @@ class PrepareMainWorkflow:
                     name=name,
                     file_name=f"{name}.{evf_extension}".replace(" ", ""),
                     original_video_file=self.ovf,
-                    video_encoding=enc,
+                    encoder_setting=enc,
                 ),
             )
         return encoded_video_files
@@ -66,7 +66,7 @@ class PrepareMainWorkflow:
         extension: str = "mkv"
         decoded_video_files: list[EncodedVideoFile] = []
         for evf in encoded_video_files:
-            name: str = f"dvf_{evf.video_encoding.name}_evf_{evf.id}_ovf_{self.ovf.id}"
+            name: str = f"dvf_{evf.encoder_setting.name}_evf_{evf.id}_ovf_{self.ovf.id}"
             decoded_video_files.append(
                 DecodedVideoFile.objects.create(
                     name=name,
