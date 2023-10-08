@@ -47,6 +47,7 @@ class BaseVideoFile(BaseModel):
         blank=True,
         null=True,
         schema=FFPROBE.SCHEMA,
+        help_text="Video metadata extracted with ffprobe.",
     )
 
     file_name = models.CharField(
