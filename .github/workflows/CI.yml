@@ -6,7 +6,7 @@ on:
       - "**"
 
 env:
-  CODE_CHECKS_IMAGE_TAG: "code_checks:latest"
+  CODE_CHECKS_IMAGE_TAG: code_checks:latest
 
 jobs:
   ci:
