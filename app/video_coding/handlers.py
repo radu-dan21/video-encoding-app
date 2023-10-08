@@ -25,4 +25,7 @@ def vf_post_delete_hook(**kwargs):
     """
     instance = kwargs.get("instance")
     if instance:
-        instance.remove_folder_structure()
+        instance.remove_folder_structure(
+
+            
+        )
