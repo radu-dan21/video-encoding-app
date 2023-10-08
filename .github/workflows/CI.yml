@@ -25,7 +25,7 @@ jobs:
           push: false
           load: true
           file: Dockerfile_precommit
-          tags: ${{ vars.CODE_CHECKS_IMAGE_TAG }}
+          tags: ${{ env.CODE_CHECKS_IMAGE_TAG }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
