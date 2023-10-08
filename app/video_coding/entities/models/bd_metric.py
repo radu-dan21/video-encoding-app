@@ -35,8 +35,18 @@ class BDMetric(BaseModel):
         on_delete=models.CASCADE,
         related_name="test_metrics",
     )
-    bd_rate = models.FloatField()
-    bd_metric = models.FloatField()
+    bd_rate = models.FloatField(
+        help_text=(
+            "Average changes in bitrate for the test encoder, "
+            "compared to the reference encoder (expressed as a percentage)."
+        ),
+    )
+    bd_metric = models.FloatField(
+        help_text=(
+            "Average changes in the specified quality metric "
+            "for the test encoder, compared to the reference encoder."
+        ),
+    )
 
     @classmethod
     def compute(cls, ovf, metrics_data):
