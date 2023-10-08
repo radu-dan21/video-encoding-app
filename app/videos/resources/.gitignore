@@ -4,4 +4,4 @@
 !.gitignore
 
 # Include test video
-!waterfall2sec.mkv
+!testvideo.mkv
