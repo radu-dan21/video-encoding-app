@@ -11,15 +11,15 @@ def forwards(apps, schema_editor):
     ComparisonFilter = apps.get_model("entities", "ComparisonFilter")
 
     av1, _created = Encoder.objects.get_or_create(
-        name="AV1",
+        name="SVT-AV1",
         ffmpeg_args=["-c:v", "libsvtav1"],
     )
     hevc, _created = Encoder.objects.get_or_create(
-        name="HEVC",
+        name="x265",
         ffmpeg_args=["-c:v", "libx265"],
     )
     avc, _created = Encoder.objects.get_or_create(
-        name="AVC",
+        name="x264",
         ffmpeg_args=["-c:v", "libx264"],
     )
 
@@ -52,19 +52,19 @@ def encoder_settings(apps, av1, hevc, avc):
     EncoderSetting = apps.get_model("entities", "EncoderSetting")
 
     encoder_settings = {
-        'AV1': {
+        'SVT-AV1': {
             'ENCODER_OBJ': av1,
             'CRF_RANGE': (1, 63),
             'CRF_SAMPLE_COUNT': 4,
             'PRESETS': ('5', ),
         },
-        'HEVC': {
+        'x265': {
             'ENCODER_OBJ': hevc,
             'CRF_RANGE': (0, 51),
             'CRF_SAMPLE_COUNT': 4,
             'PRESETS': ('slow', ),
         },
-        'AVC': {
+        'x264': {
             'ENCODER_OBJ': avc,
             'CRF_RANGE': (10, 50),
             'CRF_SAMPLE_COUNT': 4,
