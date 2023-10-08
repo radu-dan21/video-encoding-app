@@ -18,7 +18,19 @@ from video_coding.entities.models import (
 
 @admin.register(BDMetric)
 class BDMetricAdmin(admin.ModelAdmin):
-    pass
+    def get_form(self, request, obj=None, **kwargs):
+        help_texts = {
+            "bd_rate": (
+                "Average changes in bitrate for the test encoder, "
+                "compared to the reference encoder (expressed as a percentage)."
+            ),
+            "bd_metric": (
+                "Average changes in the specified quality metric "
+                "for the test encoder, compared to the reference encoder."
+            ),
+        }
+        kwargs.update({"help_texts": help_texts})
+        return super().get_form(request, obj, **kwargs)
 
 
 @admin.register(Codec)
