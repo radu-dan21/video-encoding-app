@@ -17,7 +17,24 @@ class InformationFilterResultReadonlyForm(BaseReadonlyForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["output"].widget = forms.Textarea(attrs={"rows": 13})
+
+        output: str = kwargs["instance"].output
+        description: str = kwargs["instance"].video_filter.description
+
+        self._create_output_field(
+            field_type=forms.CharField,
+            name="description",
+            output=description,
+        )
+
+        textarea_field_value_map: dict[str, str] = {
+            "description": description,
+            "output": output,
+        }
+        for field_name, field_value in textarea_field_value_map.items():
+            self.fields[field_name].widget = forms.Textarea(
+                attrs={"rows": field_value.count("\n") + 1}
+            )
 
 
 InformationFilterResultFormset = forms.modelformset_factory(

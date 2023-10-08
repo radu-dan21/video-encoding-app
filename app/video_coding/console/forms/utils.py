@@ -1,4 +1,5 @@
 from django import forms
+from django.utils.safestring import mark_safe
 
 from video_coding.entities.models import BaseModel
 
@@ -10,3 +11,7 @@ class ModelMultipleChoiceField(forms.ModelMultipleChoiceField):
             widget=forms.CheckboxSelectMultiple,
             **kwargs,
         )
+
+
+def get_bold(s: str) -> str:
+    return mark_safe(f"<strong>{s}</strong>")

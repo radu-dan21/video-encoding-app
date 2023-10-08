@@ -8,7 +8,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
 
 from video_coding.console.forms.base import BaseReadonlyForm
-from video_coding.console.forms.utils import ModelMultipleChoiceField
+from video_coding.console.forms.utils import ModelMultipleChoiceField, get_bold
 from video_coding.console.layout import get_row
 from video_coding.entities.models import (
     VALID_VIDEO_FILE_EXTENSION_LIST,
@@ -75,25 +75,38 @@ class OriginalVideoFileCreateForm(forms.Form):
         path=settings.VIDEOS_FOR_PROCESSING_PATH,
         match=VIDEO_FILE_NAME_REGEX,
         required=False,
+        help_text=(
+            "Use an existing video from "
+            f"{get_bold(settings.VIDEOS_FOR_PROCESSING_RELATIVE_TO_BASE_DIR)}."
+        ),
     )
     file = forms.FileField(
         required=False,
         validators=[
             FileExtensionValidator(VALID_VIDEO_FILE_EXTENSION_LIST),
         ],
+        help_text="Upload a video from your computer.",
     )
-    video_encodings = ModelMultipleChoiceField(
+    encoder_settings = ModelMultipleChoiceField(
         model=VideoEncoding,
         required=True,
         error_messages={"required": "At least 1 video encoding must be selected!"},
+        help_text="For each chosen setting, one encoded video will be generated.",
     )
-    info_filters = ModelMultipleChoiceField(
+    information_filters = ModelMultipleChoiceField(
         model=InformationFilter,
         required=False,
+        help_text=(
+            "Classification metrics that will be computed for the original video."
+        ),
     )
     comparison_filters = ModelMultipleChoiceField(
         model=ComparisonFilter,
         required=False,
+        help_text=(
+            "Quality metrics that will be computed for each encoded video, "
+            "having the original video as reference."
+        ),
     )
 
     def __init__(self, *args, **kwargs):
@@ -108,8 +121,8 @@ class OriginalVideoFileCreateForm(forms.Form):
             "name",
             "path",
             "file",
-            "video_encodings",
-            "info_filters",
+            "encoder_settings",
+            "information_filters",
             "comparison_filters",
         )
         helper.add_input(Submit("submit", "Submit", css_class="btn-primary"))
@@ -123,7 +136,7 @@ class OriginalVideoFileCreateForm(forms.Form):
 
     def clean(self) -> dict[str, Any]:
         cd: dict[str, Any] = super().clean()
-        if not bool(cd["path"]) ^ bool(cd["file"]):
+        if "file" in cd and not bool(cd["path"]) ^ bool(cd["file"]):
             raise ValidationError(
                 "You must either upload a file or select one from the list!"
             )
@@ -138,8 +151,8 @@ class OriginalVideoFileCreateForm(forms.Form):
 
         PrepareMainWorkflow(
             ovf_id=ovf.id,
-            encoding_ids=cd["video_encodings"].values_list("id", flat=True),
-            info_filter_ids=cd["info_filters"].values_list("id", flat=True),
+            encoding_ids=cd["encoder_settings"].values_list("id", flat=True),
+            info_filter_ids=cd["information_filters"].values_list("id", flat=True),
             comparison_filter_ids=cd["comparison_filters"].values_list("id", flat=True),
         ).run()
 

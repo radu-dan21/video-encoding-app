@@ -1,3 +1,5 @@
+from typing import Any
+
 from crispy_forms.bootstrap import UneditableField
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Column, Layout
@@ -32,6 +34,18 @@ class BaseReadonlyForm(forms.ModelForm):
     @classmethod
     def get_all_fields(cls) -> list[str]:
         return cls.Meta.fields + cls.properties
+
+    def _create_output_field(
+        self,
+        field_type: type[forms.Field],
+        name: str,
+        output: Any,
+        **kwargs,
+    ) -> None:
+        self.extra_fields.append(name)
+        self.fields[name] = field_type(**kwargs)
+        self.fields[name].initial = output
+        self.fields[name].disabled = True
 
 
 class RowFormsetHelper(FormHelper):

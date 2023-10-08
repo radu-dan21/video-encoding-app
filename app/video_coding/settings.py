@@ -152,6 +152,11 @@ VIDEOS_FOR_PROCESSING_PATH: str = os.path.join(
     os.environ.get("OVFS_FOR_PROCESSING_REL_PATH", "resources/"),
 )
 
+VIDEOS_FOR_PROCESSING_RELATIVE_TO_BASE_DIR = os.path.relpath(
+    VIDEOS_FOR_PROCESSING_PATH,
+    BASE_DIR,
+)
+
 # Celery setup
 
 REDIS_HOST = os.environ.get("REDIS_HOST", "redis")

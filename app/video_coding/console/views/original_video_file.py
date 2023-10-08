@@ -117,7 +117,9 @@ class OriginalVideoFileDetailsView(View):
             {
                 "form": form,
                 "ifr_formset": ifr_formset,
-                "ifr_helper": InformationFilterResultFormsetHelper(),
+                "ifr_helper": InformationFilterResultFormsetHelper(
+                    extra_fields=["description"],
+                ),
                 "evf_formset": evf_formset,
                 "evf_helper": EncodedVideoFileFormsetHelper(
                     extra_fields=[cf.name for cf in comparison_filters],

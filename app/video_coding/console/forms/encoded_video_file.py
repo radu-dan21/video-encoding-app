@@ -33,17 +33,13 @@ class EncodedVideoFileReadonlyForm(BaseReadonlyForm):
         # add a new form field that contains the quality score
         for cfr in self.instance.decoded_video_file.cfrs:
             name: str = cfr.video_filter.name
-            self.extra_fields.append(name)
             value = cfr.value
-            self._create_output_charfield(
-                name,
-                str(value) if value is not None else "",
+            self._create_output_field(
+                field_type=forms.CharField,
+                name=cfr.video_filter.name,
+                output=str(value) if value is not None else "",
+                label=name,
             )
-
-    def _create_output_charfield(self, name: str, output: str) -> None:
-        self.fields[name] = forms.CharField(label=name)
-        self.fields[name].initial = output
-        self.fields[name].disabled = True
 
 
 EncodedVideoFileFormset = forms.modelformset_factory(

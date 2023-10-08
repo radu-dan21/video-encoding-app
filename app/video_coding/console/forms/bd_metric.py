@@ -17,8 +17,13 @@ class BDMetricReadonlyForm(BaseReadonlyForm):
 
     field_label_mapping = {
         "bd_rate": "BD Rate (%)",
-        "bd_metric": "BD Metric",
     }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        quality_metric_name: str = kwargs["instance"].video_filter.name
+        self.fields["bd_metric"].label = f"BD-{quality_metric_name}"
 
 
 BDMetricFormset = forms.modelformset_factory(
