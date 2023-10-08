@@ -98,7 +98,7 @@ class InformationFilterResult(FilterResults):
     Represents the result of an InformationFilter, for an OriginalVideoFile instance
     """
 
-    video_filter = models.ForeignKey(
+    information_filter = models.ForeignKey(
         InformationFilter,
         on_delete=models.CASCADE,
         related_name="results",
@@ -114,7 +114,7 @@ class InformationFilterResult(FilterResults):
         args: list[str] = [
             "-i",
             f'"{self.video.file_path}"',
-        ] + self.video_filter.ffmpeg_args
+        ] + self.information_filter.ffmpeg_args
         self.call_ffmpeg(args)
 
 
@@ -124,7 +124,7 @@ class ComparisonFilterResult(FilterResults):
     one of its encoded variants, after it has been decoded
     """
 
-    video_filter = models.ForeignKey(
+    comparison_filter = models.ForeignKey(
         ComparisonFilter,
         on_delete=models.CASCADE,
         related_name="results",
@@ -150,11 +150,14 @@ class ComparisonFilterResult(FilterResults):
             f'"{self.video_to_compare.file_path}"',
             "-i",
             f'"{self.reference_video.file_path}"',
-        ] + self.video_filter.ffmpeg_args
+        ] + self.comparison_filter.ffmpeg_args
         self.call_ffmpeg(args)
 
     def call_ffmpeg(self, args: list[str], commit=True) -> str | None:
         super().call_ffmpeg(args, commit=False)
-        match = re.search(self.video_filter.regex_for_value_extraction, self.output)
+        match = re.search(
+            self.comparison_filter.regex_for_value_extraction,
+            self.output,
+        )
         self.value = float(match.group("value"))
         self.save()

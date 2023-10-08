@@ -32,11 +32,11 @@ class EncodedVideoFileReadonlyForm(BaseReadonlyForm):
         # for each ComparisonFilterResult,
         # add a new form field that contains the quality score
         for cfr in self.instance.decoded_video_file.cfrs:
-            name: str = cfr.video_filter.name
+            name: str = cfr.comparison_filter.name
             value = cfr.value
             self._create_output_field(
                 field_type=forms.CharField,
-                name=cfr.video_filter.name,
+                name=cfr.comparison_filter.name,
                 output=str(value) if value is not None else "",
                 label=name,
             )

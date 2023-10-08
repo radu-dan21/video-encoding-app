@@ -71,7 +71,9 @@ class OriginalVideoFileDetailsView(View):
                     "comparison_filter_results",
                     to_attr="cfrs",
                     queryset=(
-                        ComparisonFilterResult.objects.select_related("video_filter")
+                        ComparisonFilterResult.objects.select_related(
+                            "comparison_filter"
+                        )
                     ),
                 ),
             )
@@ -97,8 +99,8 @@ class OriginalVideoFileDetailsView(View):
                     to_attr="cfrs",
                     queryset=(
                         ComparisonFilterResult.objects.select_related(
-                            "video_filter"
-                        ).only("value", "video_filter__name")
+                            "comparison_filter"
+                        ).only("value", "comparison_filter__name")
                     ),
                 ),
             )
@@ -134,7 +136,7 @@ class OriginalVideoFileDetailsView(View):
     def _get_comparison_filters(
         evfs: list[EncodedVideoFile],
     ) -> list[ComparisonFilter]:
-        cfs = {cfr.video_filter for cfr in evfs[0].decoded_video_file.cfrs}
+        cfs = {cfr.comparison_filter for cfr in evfs[0].decoded_video_file.cfrs}
         return list(sorted(cfs, key=lambda cf: cf.id))
 
     @staticmethod

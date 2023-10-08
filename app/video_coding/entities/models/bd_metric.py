@@ -21,7 +21,7 @@ class BDMetric(BaseModel):
         on_delete=models.CASCADE,
         related_name="bd_metrics",
     )
-    video_filter = models.ForeignKey(
+    comparison_filter = models.ForeignKey(
         "ComparisonFilter",
         on_delete=models.CASCADE,
     )
@@ -95,7 +95,7 @@ class BDMetric(BaseModel):
                 cls.objects.create(
                     name=f"OVF {ovf.id} - {c1.name} vs {c2.name} - {metric_name}",
                     original_video_file=ovf,
-                    video_filter=metric_dict[metric_name],
+                    comparison_filter=metric_dict[metric_name],
                     reference_codec=c1,
                     test_codec=c2,
                     bd_rate=bd_rate_,

@@ -40,21 +40,21 @@ class MetricsData:
             .filter(original_video_file_id=self.ovf_id)
         )
         cfrs = (
-            ComparisonFilterResult.objects.select_related("video_filter")
+            ComparisonFilterResult.objects.select_related("comparison_filter")
             .only(
                 "value",
                 "video_to_compare_id",
-                "video_filter__id",
-                "video_filter__name",
+                "comparison_filter__id",
+                "comparison_filter__name",
             )
             .filter(reference_video_id=self.ovf_id)
-            .order_by("video_filter__id")
+            .order_by("comparison_filter__id")
         )
 
-        video_filters = list({cfr.video_filter for cfr in cfrs})
-        video_filters.sort(key=lambda vf: vf.id)
+        comparison_filters = list({cfr.comparison_filter for cfr in cfrs})
+        comparison_filters.sort(key=lambda vf: vf.id)
 
-        column_names = self.COMMON_COLUMNS + [vf.name for vf in video_filters]
+        column_names = self.COMMON_COLUMNS + [vf.name for vf in comparison_filters]
 
         dvf_data_mapping: dict[int, list] = {
             e.decoded_video_file.id: [

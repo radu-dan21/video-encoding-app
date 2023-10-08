@@ -71,7 +71,7 @@ class InformationFilterResultsFactory(BaseModelFactory):
         model = models.InformationFilterResult
 
     video = factory.SubFactory(OriginalVideoFileFactory)
-    video_filter = factory.SubFactory(InformationFilterFactory)
+    information_filter = factory.SubFactory(InformationFilterFactory)
 
 
 class ComparisonFilterResultsFactory(BaseModelFactory):
@@ -82,4 +82,4 @@ class ComparisonFilterResultsFactory(BaseModelFactory):
     reference_video = factory.LazyAttribute(
         lambda o: o.video_to_compare.encoded_video_file.original_video_file,
     )
-    video_filter = factory.SubFactory(ComparisonFilterFactory)
+    comparison_filter = factory.SubFactory(ComparisonFilterFactory)

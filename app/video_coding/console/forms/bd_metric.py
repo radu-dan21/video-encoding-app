@@ -10,7 +10,7 @@ class BDMetricReadonlyForm(BaseReadonlyForm):
         fields = [
             "reference_codec",
             "test_codec",
-            "video_filter",
+            "comparison_filter",
             "bd_rate",
             "bd_metric",
         ]
@@ -22,7 +22,7 @@ class BDMetricReadonlyForm(BaseReadonlyForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        quality_metric_name: str = kwargs["instance"].video_filter.name
+        quality_metric_name: str = kwargs["instance"].comparison_filter.name
         self.fields["bd_metric"].label = f"BD-{quality_metric_name}"
 
 

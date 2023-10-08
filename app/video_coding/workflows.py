@@ -80,7 +80,7 @@ class PrepareMainWorkflow:
         for if_ in self.info_filters:
             InformationFilterResult.objects.create(
                 name=f"{if_.name}_ovf_{self.ovf.id}",
-                video_filter=if_,
+                information_filter=if_,
                 video=self.ovf,
             )
 
@@ -92,7 +92,7 @@ class PrepareMainWorkflow:
             for dvf in decoded_video_files:
                 ComparisonFilterResult.objects.create(
                     name=f"{cf.name}_ovf_{self.ovf.id}_dvf_{dvf.id}",
-                    video_filter=cf,
+                    comparison_filter=cf,
                     video_to_compare=dvf,
                     reference_video=self.ovf,
                 )

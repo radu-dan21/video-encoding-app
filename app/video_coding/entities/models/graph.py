@@ -77,17 +77,17 @@ class MetricGraph(BaseGraph):
     (1 MetricGraph for each ComparisonFilter selected for an OriginalVideoFile)
     """
 
-    video_filter = models.ForeignKey(
+    comparison_filter = models.ForeignKey(
         "ComparisonFilter",
         on_delete=models.CASCADE,
     )
 
     def generate(self, metrics_data: MetricsData) -> list[str]:
-        vf_name: str = self.video_filter.name
+        vf_name: str = self.comparison_filter.name
         figure = px.line(
             metrics_data.data_frame,
             x="log10 bitrate (kbps)",
-            y=self.video_filter.name,
+            y=self.comparison_filter.name,
             hover_data=["bitrate (kbps)", "codec setting"],
             color="codec",
             symbol="codec",

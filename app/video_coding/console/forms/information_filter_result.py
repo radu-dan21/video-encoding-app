@@ -8,7 +8,7 @@ class InformationFilterResultReadonlyForm(BaseReadonlyForm):
     class Meta:
         model = InformationFilterResult
         fields = [
-            "video_filter",
+            "information_filter",
             "compute_time",
             "output",
         ]
@@ -19,7 +19,7 @@ class InformationFilterResultReadonlyForm(BaseReadonlyForm):
         super().__init__(*args, **kwargs)
 
         output: str = kwargs["instance"].output
-        description: str = kwargs["instance"].video_filter.description
+        description: str = kwargs["instance"].information_filter.description
 
         self._create_output_field(
             field_type=forms.CharField,

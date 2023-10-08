@@ -240,7 +240,7 @@ class OriginalVideoFile(BaseVideoFile):
             MetricGraph.objects.create(
                 original_video_file=self,
                 name=f"OVF {self.id} - {mn}",
-                video_filter=ComparisonFilter.objects.get(name=mn),
+                comparison_filter=ComparisonFilter.objects.get(name=mn),
                 file_path=metric_graph_file_path,
             ).create_graph_file(metrics_data)
 
