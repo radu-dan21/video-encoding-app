@@ -47,14 +47,14 @@ def create_video_encodings(apps, av1, hevc, avc):
         'AV1': {
             'CODEC_OBJ': av1,
             'CRF_RANGE': (1, 63),
-            'CRF_SAMPLE_COUNT': 15,
-            'PRESETS': ('4', '5'),
+            'CRF_SAMPLE_COUNT': 4,
+            'PRESETS': ('5', ),
         },
         'HEVC': {
             'CODEC_OBJ': hevc,
             'CRF_RANGE': (0, 51),
-            'CRF_SAMPLE_COUNT': 15,
-            'PRESETS': ('slower', 'slow'),
+            'CRF_SAMPLE_COUNT': 4,
+            'PRESETS': ('slow', ),
         },
         'AVC': {
             'CODEC_OBJ': avc,
