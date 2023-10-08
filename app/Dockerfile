@@ -26,6 +26,8 @@ RUN pip install -r requirements.txt
 
 COPY . .
 
+ENV PYTHONPATH=${PYTHONPATH}:/usr/src/app
+
 FROM base AS development
 
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
