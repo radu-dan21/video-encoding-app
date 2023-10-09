@@ -179,6 +179,7 @@ class Celery:
     task_create_missing_queues = True
     task_time_limit = (DEFAULT_TASK_LIMIT,)
     task_soft_time_limit = None
+    worker_hijack_root_logger = False
 
 
 # Logging config

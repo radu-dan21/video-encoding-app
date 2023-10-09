@@ -311,7 +311,13 @@ class EncodedVideoFile(BaseVideoFile):
         if self.encoding_time:
             return
         self.encoding_time = FFMPEG.call(
-            ["-y", "-i", f'"{self.original_video_file.file_path}"']
+            [
+                "-y",
+                "-loglevel",
+                "warning",
+                "-i",
+                f'"{self.original_video_file.file_path}"',
+            ]
             + self.encoder_setting.ffmpeg_args
             + [self.file_path]
         )[0]
@@ -348,6 +354,10 @@ class DecodedVideoFile(BaseVideoFile):
         self.decode()
         super().run_workflow()
         self.compute_comparison_metrics()
+
+        # delete decoded video from disk after
+        # extracting metadata and computing metrics
+        remove_file_tree(self.file_path)
 
     def compute_comparison_metrics(self) -> None:
         """

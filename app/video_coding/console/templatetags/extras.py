@@ -26,7 +26,7 @@ def ovf_status_html(ovf: OriginalVideoFile, autoescape=True):
         ),
         Status.FAILED: (
             "alert-danger",
-            f"Workflow failed with error: <{ovf.error_message}>!",
+            f"Workflow failed with error: {ovf.error_message}",
         ),
     }
     html_to_render: str = ""

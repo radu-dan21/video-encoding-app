@@ -1,10 +1,16 @@
 import json
-import subprocess
 
 from typing import Any
 
+from video_coding.utils.shell_utils import ShellOperations
+
 
 class FFPROBE:
+    CMD: str = (
+        "ffprobe -loglevel warning -print_format json "
+        "-show_format -show_streams {input}"
+    )
+
     @classmethod
     def call(cls, input_file_path: str) -> dict:
         """
@@ -12,20 +18,8 @@ class FFPROBE:
         :param input_file_path: Path to the input video to be analyzed with ffprobe
         :return: ffprobe response, partially truncated to match
         """
-        ffprobe_process: subprocess.CompletedProcess = subprocess.run(
-            [
-                "ffprobe",
-                "-print_format",
-                "json",
-                "-show_format",
-                "-show_streams",
-                f"{input_file_path}",
-            ],
-            capture_output=True,
-        )
-        return cls._modify_ffprobe_info_to_match_schema(
-            json.loads(ffprobe_process.stdout),
-        )
+        out = ShellOperations.call_bash_cmd(cls.CMD.format(input=input_file_path))
+        return cls._modify_ffprobe_info_to_match_schema(json.loads(out))
 
     @classmethod
     def _modify_ffprobe_info_to_match_schema(cls, ffprobe_info: dict) -> dict:
