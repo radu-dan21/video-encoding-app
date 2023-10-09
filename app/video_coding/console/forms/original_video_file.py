@@ -89,12 +89,14 @@ class OriginalVideoFileCreateForm(forms.Form):
     )
     encoder_settings = ModelMultipleChoiceField(
         model=EncoderSetting,
+        all_selected=True,
         required=True,
         error_messages={"required": "At least 1 encoder setting must be selected!"},
         help_text="For each chosen setting, one encoded video will be generated.",
     )
     information_filters = ModelMultipleChoiceField(
         model=InformationFilter,
+        all_selected=True,
         required=False,
         help_text=(
             "Classification metrics that will be computed for the original video."
@@ -102,6 +104,7 @@ class OriginalVideoFileCreateForm(forms.Form):
     )
     comparison_filters = ModelMultipleChoiceField(
         model=ComparisonFilter,
+        all_selected=True,
         required=False,
         help_text=(
             "Quality metrics that will be computed for each encoded video, "
