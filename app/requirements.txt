@@ -1,5 +1,5 @@
 bjontegaard==1.2.0
-celery[redis,gevent]==5.2.7
+celery[redis,gevent]==5.3.0
 crispy-bootstrap4==2022.1
 Django==4.2
 django-crispy-forms==2.0
