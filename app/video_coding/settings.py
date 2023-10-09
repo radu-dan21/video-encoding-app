@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import logging.config
 import os
 
 from datetime import timedelta
@@ -178,3 +179,36 @@ class Celery:
     task_create_missing_queues = True
     task_time_limit = (DEFAULT_TASK_LIMIT,)
     task_soft_time_limit = None
+
+
+# Logging config
+
+LOGGING_CONFIG = None  # remove Django's default logging config
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "%(levelname)-8s %(asctime)s "
+            "--- [%(name)s] %(funcName)-24s : %(message)s",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        },
+    },
+    "loggers": {
+        "": {
+            "level": "INFO",
+            "handlers": [
+                "console",
+            ],
+            "propagate": False,
+        },
+    },
+}
+
+logging.config.dictConfig(LOGGING)
